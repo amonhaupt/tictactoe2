@@ -1,0 +1,120 @@
+/* 
+    COLORS
+    ------
+
+    darkblue  -  #153448
+    blue      -  #3C5B6F
+    darkbrown -  #948979
+    brown     -  #DFD0B8 
+*/
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #153448;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 800;
+  }
+.game-header {
+    text-align: center;
+    margin-bottom: 2vmin;
+}
+.game-header h1 {
+    font-size: 3vmin;
+    color: #ffffff;
+    margin: 0;
+    padding: 2vmin 0;
+}
+.center-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    padding: 2vmin;
+    box-sizing: border-box;
+}
+.game-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 2vmin;
+    width: calc(100vmin - 4vmin);  
+    height: calc(100vmin - 4vmin); 
+}
+.square-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 0.5vmin;
+    width: 100%;
+    height: 100%;
+    /* aspect-ratio: 1 / 1; */
+}
+.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+.square {
+    width: 100%;
+    height: 100%;
+    font-size: 3vmin;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #153448;
+    border: 0.3vmin solid #3C5B6F;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    /* wenn XO hinzugefügt wird damit die größe gleich bleibt */
+    min-width: 8vmin; 
+    min-height: 8vmin; 
+}
+.square:hover {
+    /* background-color: #948979; */
+    border: 0.3vmin solid #ff6666;
+}
+.square-disabled {
+    pointer-events: none;
+    border: 0.3vmin solid rgba(61, 92, 113, 0.6);
+}
+
+.reset-button-container {
+    text-align: center;
+    margin-top: 3vmin;
+}
+
+#reset-game {
+    font-size: 2vmin;
+    padding: 1vmin 2vmin;
+    background-color: #ff6666;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#reset-game:hover {
+    background-color: #ff4d4d;
+}
+
+@media (max-width: 600px) {
+    .game-board {
+        width: 95vmin;
+        height: 95vmin;
+        gap: 1vmin;
+    }
+    .square-container {
+        gap: 0.3vmin;
+    }
+    .square {
+        font-size: 4vmin;
+        border-width: 0.2vmin;
+    }
+    #reset-game {
+        font-size: 3vmin;
+        padding: 1.5vmin 3vmin;
+    }
+}
