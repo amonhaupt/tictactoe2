@@ -79,12 +79,13 @@ html, body {
     pointer-events: none;
     border: 0.3vmin solid rgba(61, 92, 113, 0.6);
 }
-
+.square-complete {
+    background-color: #ff0000;
+}
 .reset-button-container {
     text-align: center;
     margin-top: 3vmin;
 }
-
 #reset-game {
     font-size: 2vmin;
     padding: 1vmin 2vmin;
@@ -95,7 +96,6 @@ html, body {
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-
 #reset-game:hover {
     background-color: #ff4d4d;
 }

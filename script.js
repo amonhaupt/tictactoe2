@@ -36,22 +36,63 @@ function handleClick(button, buttonRelativeIndex, parentElement, grandParentElem
 
         button.textContent = "X";
         activePlayer -= 1;
-        
+
     }
+    checkForWinner(parentElement);
 
     button.classList.add("square-disabled");
     grandParentElementChildren = Array.from(grandParentElement.children)
     grandParentElementChildren.forEach((child, index) => {
 
-        if (index != buttonRelativeIndex) {
+        if (index == buttonRelativeIndex && child.classList.contains(".square-container-complete")) {
 
             child.classList.add("disabled");
 
         } else {
 
-            child.classList.remove("disabled");
+            if (index != buttonRelativeIndex) {
 
+                child.classList.add("disabled");
+
+            } else {
+
+                child.classList.remove("disabled");
+
+            }
         }
 
     });
+}
+
+function checkForWinner(parentElement) {
+
+    var isWon = false;
+
+    for (let pattern of winPatterns) {
+
+        let pos1 = Array.from(parentElement.children)[pattern[0]].innerText;
+        let pos2 = Array.from(parentElement.children)[pattern[1]].innerText;
+        let pos3 = Array.from(parentElement.children)[pattern[2]].innerText;
+
+        if (pos1 !== "" && pos2 !== "" && pos3 !== "" && pos1 === pos2 && pos2 === pos3) {
+
+            parentElement.classList.add("square-container-complete");
+            Array.from(parentElement.children)[pattern[0]].classList.add("square-complete");
+            Array.from(parentElement.children)[pattern[1]].classList.add("square-complete");
+            Array.from(parentElement.children)[pattern[2]].classList.add("square-complete");
+            isWon = true;
+            console.log("IS WON");
+            return;
+
+        }
+
+        if (!isWon) {
+
+            console.log("NOT WON");
+
+        }
+
+    }
+
+
 }
