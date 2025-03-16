@@ -1,6 +1,6 @@
 let squares = document.querySelectorAll(".square");
+let squareContainers = document.querySelectorAll(".square-container");
 let activePlayer = 0;
-
 
 const winPatterns = [
     [0, 1, 2],
@@ -12,6 +12,8 @@ const winPatterns = [
     [3, 4, 5],
     [6, 7, 8]
 ];
+let winStates = ["","","","","","","","",""];
+let gameEnded = false;
 
 squares.forEach((square, index) => {
     square.addEventListener('click', function(event) {
@@ -19,13 +21,14 @@ squares.forEach((square, index) => {
         const parentElement = event.target.parentElement;
         const grandParentElement = event.target.parentElement.parentElement;
         const buttonRelativeIndex = (index - (9 * Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement)));
+        const alsoButtonRelativeIndex = (Array.from(event.target.parentElement.children).indexOf(event.target));
+        const parentIndex = Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement);
 
-        handleClick(button, buttonRelativeIndex, parentElement, grandParentElement);
+        handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement);
     });
 });
 
-function handleClick(button, buttonRelativeIndex, parentElement, grandParentElement) {
-
+function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement) {
     
     if (activePlayer == 0) {
 
@@ -38,33 +41,48 @@ function handleClick(button, buttonRelativeIndex, parentElement, grandParentElem
         activePlayer -= 1;
 
     }
-    checkForWinner(parentElement);
+
+    grandParentElementChildren = Array.from(grandParentElement.children);
+
+    checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren);
 
     button.classList.add("square-disabled");
-    grandParentElementChildren = Array.from(grandParentElement.children)
-    grandParentElementChildren.forEach((child, index) => {
 
-        if (index == buttonRelativeIndex && child.classList.contains(".square-container-complete")) {
+    if (!gameEnded) {
+    
+        grandParentElementChildren.forEach((child, index) => {
 
-            child.classList.add("disabled");
+            if (squareContainers[buttonRelativeIndex].classList.contains("square-container-complete")) {
 
-        } else {
+                if (child.classList.contains("square-container-complete")) {
 
-            if (index != buttonRelativeIndex) {
+                    child.classList.add("disabled");
+                    
+                } else {
 
-                child.classList.add("disabled");
+                    child.classList.remove("disabled");
+
+                }
 
             } else {
 
-                child.classList.remove("disabled");
+                if (index != buttonRelativeIndex) {
+
+                    child.classList.add("disabled");
+        
+                } else {
+        
+                    child.classList.remove("disabled");
+        
+                }
 
             }
-        }
 
-    });
+        });
+    }   
 }
 
-function checkForWinner(parentElement) {
+function checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren) {
 
     var isWon = false;
 
@@ -80,19 +98,55 @@ function checkForWinner(parentElement) {
             Array.from(parentElement.children)[pattern[0]].classList.add("square-complete");
             Array.from(parentElement.children)[pattern[1]].classList.add("square-complete");
             Array.from(parentElement.children)[pattern[2]].classList.add("square-complete");
+            winStates[parentIndex] = pos1;
+            console.log(pos1);
             isWon = true;
-            console.log("IS WON");
+            checkForWinner(grandParentElementChildren);
             return;
 
         }
 
         if (!isWon) {
 
-            console.log("NOT WON");
+            // console.log("NOT WON");
 
         }
 
     }
+    
 
+}
+
+function checkForWinner(grandParentElementChildren) {
+
+    var isWon = false;
+
+    for (let pattern of winPatterns) {
+
+        let pos1 = winStates[pattern[0]];
+        let pos2 = winStates[pattern[1]];
+        let pos3 = winStates[pattern[2]];
+
+        if (pos1 !== "" && pos2 !== "" && pos3 !== "" && pos1 === pos2 && pos2 === pos3) {
+
+            isWon = true;
+            grandParentElementChildren.forEach((child, index) => {
+                
+                child.classList.add("disabled");
+
+            });
+            alert("IS WON");
+            gameEnded = true;
+            return;
+
+        }
+
+        if (!isWon) {
+
+            // console.log("NOT WON");
+
+        }
+
+    }
 
 }
