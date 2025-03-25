@@ -52,9 +52,9 @@ function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, gr
     
         grandParentElementChildren.forEach((child, index) => {
 
-            if (squareContainers[buttonRelativeIndex].classList.contains("square-container-complete")) {
+            if (squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-x") || squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-o")) {
 
-                if (child.classList.contains("square-container-complete")) {
+                if (child.classList.contains("square-container-complete-x") || child.classList.contains("square-container-complete-o")) {
 
                     child.classList.add("disabled");
                     
@@ -94,10 +94,17 @@ function checkForIndividualWinner(parentElement, parentIndex, grandParentElement
 
         if (pos1 !== "" && pos2 !== "" && pos3 !== "" && pos1 === pos2 && pos2 === pos3) {
 
-            parentElement.classList.add("square-container-complete");
-            Array.from(parentElement.children)[pattern[0]].classList.add("square-complete");
-            Array.from(parentElement.children)[pattern[1]].classList.add("square-complete");
-            Array.from(parentElement.children)[pattern[2]].classList.add("square-complete");
+            if (activePlayer == 0) {
+                parentElement.classList.add("square-container-complete-x");
+            } else {
+                parentElement.classList.add("square-container-complete-o");
+            }
+            
+            parentElement.replaceChildren();
+
+            // Array.from(parentElement.children)[pattern[0]].classList.add("square-complete");
+            // Array.from(parentElement.children)[pattern[1]].classList.add("square-complete");
+            // Array.from(parentElement.children)[pattern[2]].classList.add("square-complete");
             winStates[parentIndex] = pos1;
             console.log(pos1);
             isWon = true;
@@ -135,7 +142,11 @@ function checkForWinner(grandParentElementChildren) {
                 child.classList.add("disabled");
 
             });
-            alert("IS WON");
+            if (activePlayer == 0) {
+                alert("X WON");
+            } else {
+                alert("O WON");
+            }
             gameEnded = true;
             return;
 
@@ -150,3 +161,44 @@ function checkForWinner(grandParentElementChildren) {
     }
 
 }
+
+
+// Get the settings
+var settings = document.getElementById("settings");
+
+// Get the button that opens the modal
+var settingsButton = document.getElementById("settings-button");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close-settings")[0];
+
+// When the user clicks on the button, open the modal
+settingsButton.onclick = function() {
+  settings.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the settings
+span.onclick = function() {
+  settings.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the settings, close it
+window.onclick = function(event) {
+  if (event.target == settings) {
+    settings.style.display = "none";
+  }
+} 
+
+const toggle = document.getElementById('theme-toggle');
+
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+  document.documentElement.style.colorScheme = savedTheme;
+  toggle.checked = savedTheme === 'dark';
+}
+
+toggle.addEventListener('change', () => {
+    const theme = toggle.checked ? 'dark' : 'light';
+    document.documentElement.style.colorScheme = theme;
+    localStorage.setItem('theme', theme); 
+  });
