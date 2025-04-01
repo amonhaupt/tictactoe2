@@ -1,7 +1,5 @@
 // GAME //
 
-
-
 const winPatterns = [
     [0, 1, 2],
     [0, 3, 6],
@@ -68,6 +66,29 @@ squares.forEach((square, index) => {
 var previousButton = document.createElement("button");
 function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement) {
     
+    if (activePlayer == 0) {
+
+        button.textContent = "O";
+        gameStates[parentIndex][buttonRelativeIndex] = "O";
+        activePlayer += 1;
+        document.getElementsByClassName("current-turn")[0].textContent = "X";
+        button.classList.add("last-square-o");
+        previousButton.classList.remove("last-square-x");
+
+    } else {
+
+        button.textContent = "X";
+        gameStates[parentIndex][buttonRelativeIndex] = "X";
+        activePlayer -= 1;
+        document.getElementsByClassName("current-turn")[0].textContent = "O";
+
+        button.classList.add("last-square-x");
+        previousButton.classList.remove("last-square-o");
+
+    }
+ 
+    previousButton = button;   
+    
     grandParentElementChildren = Array.from(grandParentElement.children);
 
     checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren);
@@ -106,28 +127,7 @@ function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, gr
 
         });
     }
-    if (activePlayer == 0) {
 
-        button.textContent = "O";
-        gameStates[parentIndex][buttonRelativeIndex] = "O";
-        activePlayer += 1;
-        document.getElementsByClassName("current-turn")[0].textContent = "X";
-        button.classList.add("last-square-o");
-        previousButton.classList.remove("last-square-x");
-
-    } else {
-
-        button.textContent = "X";
-        gameStates[parentIndex][buttonRelativeIndex] = "X";
-        activePlayer -= 1;
-        document.getElementsByClassName("current-turn")[0].textContent = "O";
-
-        button.classList.add("last-square-x");
-        previousButton.classList.remove("last-square-o");
-
-    }
- 
-    previousButton = button;   
 }
 
 function checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren) {
