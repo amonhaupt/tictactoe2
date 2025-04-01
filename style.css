@@ -15,6 +15,7 @@ html, body {
     background-color: light-dark(var(--darkblue), var(--darkblue));
     font-family: 'Open Sans', sans-serif;
     font-weight: 800;
+    color: white;
   }
 .game-header {
     text-align: center;
@@ -26,6 +27,14 @@ html, body {
     margin: 0;
     padding: 2vmin 0;
 }
+.current-turn {
+    text-align: center;
+    font-size: 3vmin;
+    color: light-dark(#F7F7F7, #ffffff);
+    margin: 0;
+    padding: 2vmin 0;
+}
+
 .center-container {
     display: flex;
     flex-direction: column;
@@ -68,6 +77,10 @@ html, body {
     margin: 0;
 }
 
+.square-container-complete-o > Button {
+    visibility: hidden;
+}
+
 /* .square-container-complete-o::after {
     background: green;
     content: "";
@@ -86,6 +99,10 @@ html, body {
     transform: rotate(-45deg);
 }
 
+.square-container-complete-x> Button {
+    visibility: hidden;
+}
+
 .square-container-complete-x::after {
     background: red;
     content: "";
@@ -96,10 +113,36 @@ html, body {
     transform: rotate(90deg);
 }
 
+.square-container-complete-d {
+    position: relative;
+}
+
+.square-container-complete-d > Button {
+    visibility: hidden;
+}
+
+.square-container-complete-d::after {
+    background: #ff6666;
+    content: "";
+    position: absolute;
+    box-sizing: border-box;
+    height: 60%;
+    width: 10%;
+    left: 45%;
+    top: 20%;
+    transform: rotate(90deg);
+}
+
 .disabled > .square {
     /* opacity: 0.6; */
     border: 0.3vmin solid light-dark(var(--opaqueblue), var(--opaquedarkblue));
     pointer-events: none;
+}
+.disabled > .last-square-x {
+    border: 0.3vmin solid #ff6666 !important;
+}
+.disabled > .last-square-o {
+    border: 0.3vmin solid #3498db !important;
 }
 .square {
     width: 100%;
@@ -124,28 +167,79 @@ html, body {
     pointer-events: none;
     border: 0.3vmin solid light-dark(rgba(201, 228, 247, 0.1), rgba(61, 92, 113, 0.3));
 }
+.square-disabled.last-square-x {
+    border: 0.3vmin solid #ff6666 !important;
+}
+.square-disabled.last-square-o {
+    border: 0.3vmin solid #3498db !important;
+}
 .square-complete {
     background-color: #ff0000;
 }
-.reset-button-container {
+
+
+.button-container {
     text-align: center;
-    margin-top: 3vmin;
+    display: grid;
+    grid-template-columns: 1fr;
+    row-gap: 2vmin;
+    margin: 5vmin;
 }
-#reset-game {
+.button-container > Button {
     font-size: 2vmin;
     padding: 1vmin 2vmin;
-    background-color: #ff6666;
-    color: #ffffff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+#settings-button {
+    color: light-dark(black, white);
+    background-color: light-dark(#C9E4F7, var(--blue));
+    /* color: #ffffff; */
+
+}
+#settings-button:hover {
+    background-color: light-dark(rgba(201, 228, 247, 0.5), rgba(60, 91, 111, 0.5));
+}
+#settings-content {
+    display: none;
+    padding: 3vmin;
+    border: 0.3vmin solid light-dark(#C9E4F7, var(--blue));
+    border-radius: 5px;
+}
+.settings-item {
+    box-sizing: border-box;
+    padding: 2vmin;
+    border: 0.3vmin solid light-dark(#C9E4F7, var(--blue));
+    border-radius: 5px;
+}
+.theme-toggle {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+.theme-toggle-label {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+.theme-toggle-label > span {
+    pointer-events: none;
+}
+.show-settings {display: block;}
+
+#reset-game {
+    background-color: #ff6666;
+    color: #ffffff;
+}
 #reset-game:hover {
     background-color: #ff4d4d;
 }
 
-.settings-button {
+.menu-button {
     position: absolute;
     left: 0;
     top: 0;
@@ -158,25 +252,26 @@ html, body {
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-.settings-button:hover {
+.menu-button:hover {
     background-color: var(--blue);
 }
 
-.settings {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+.menu-container {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgb(0,0,0); 
+    background-color: rgba(0,0,0,0.4); 
   }
   
   /* Modal Content/Box */
-  .settings-content {
+  .menu-item-container {
+    text-align: center;
     background-color: light-dark(var(--darkblue),var(--darkblue));;
     margin: 15% auto; /* 15% from the top and centered */
     padding: 20px;
@@ -186,7 +281,7 @@ html, body {
   }
   
   /* The Close Button */
-  .close-settings {
+  .close-menu {
     color: #aaa;
     top: 10%;
     float: right;
@@ -194,8 +289,8 @@ html, body {
     font-weight: bold;
   }
   
-  .close-settings:hover,
-  .close-settings:focus {
+  .close-menu:hover,
+  .close-menu:focus {
     color: black;
     text-decoration: none;
     cursor: pointer;

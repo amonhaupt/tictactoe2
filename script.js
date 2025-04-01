@@ -1,6 +1,6 @@
-let squares = document.querySelectorAll(".square");
-let squareContainers = document.querySelectorAll(".square-container");
-let activePlayer = 0;
+// GAME //
+
+
 
 const winPatterns = [
     [0, 1, 2],
@@ -12,8 +12,45 @@ const winPatterns = [
     [3, 4, 5],
     [6, 7, 8]
 ];
-let winStates = ["","","","","","","","",""];
-let gameEnded = false;
+let winStates;
+let gameEnded;
+let gameStates;
+let activePlayer;
+let squares = document.querySelectorAll(".square");
+let squareContainers = document.querySelectorAll(".square-container");
+
+function resetGame() {
+
+    winStates = ["","","","","","","","",""];
+    gameStates = [
+        ["", "", "","", "", "","", "", ""],
+        ["", "", "","", "", "","", "", ""],
+        ["", "", "","", "", "","", "", ""],
+        ["", "", "","", "", "","", "", ""],
+        ["", "", "","", "", "","", "", ""],
+        ["", "", "","", "", "","", "", ""],
+        ["", "", "","", "", "","", "", ""],
+        ["", "", "","", "", "","", "", ""],
+        ["", "", "","", "", "","", "", ""]
+    ];
+    gameEnded = false;
+    activePlayer = 0;
+    document.getElementsByClassName("current-turn")[0].textContent = "O";
+
+    squares.forEach((square) => {
+        square.classList.remove("square-disabled");
+        square.textContent = "";
+
+    })
+
+    squareContainers.forEach((container) => {
+        container.classList.remove("square-container-complete-x");
+        container.classList.remove("square-container-complete-o");
+        container.classList.remove("square-container-complete-d");
+        container.classList.remove("disabled");
+    })
+}
+resetGame()
 
 squares.forEach((square, index) => {
     square.addEventListener('click', function(event) {
@@ -28,20 +65,9 @@ squares.forEach((square, index) => {
     });
 });
 
+var previousButton = document.createElement("button");
 function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement) {
     
-    if (activePlayer == 0) {
-
-        button.textContent = "O";
-        activePlayer += 1;
-
-    } else {
-
-        button.textContent = "X";
-        activePlayer -= 1;
-
-    }
-
     grandParentElementChildren = Array.from(grandParentElement.children);
 
     checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren);
@@ -52,9 +78,9 @@ function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, gr
     
         grandParentElementChildren.forEach((child, index) => {
 
-            if (squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-x") || squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-o")) {
+            if (squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-x") || squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-o") || squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-d")) {
 
-                if (child.classList.contains("square-container-complete-x") || child.classList.contains("square-container-complete-o")) {
+                if (child.classList.contains("square-container-complete-x") || child.classList.contains("square-container-complete-o") || child.classList.contains("square-container-complete-d")) {
 
                     child.classList.add("disabled");
                     
@@ -79,7 +105,29 @@ function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, gr
             }
 
         });
-    }   
+    }
+    if (activePlayer == 0) {
+
+        button.textContent = "O";
+        gameStates[parentIndex][buttonRelativeIndex] = "O";
+        activePlayer += 1;
+        document.getElementsByClassName("current-turn")[0].textContent = "X";
+        button.classList.add("last-square-o");
+        previousButton.classList.remove("last-square-x");
+
+    } else {
+
+        button.textContent = "X";
+        gameStates[parentIndex][buttonRelativeIndex] = "X";
+        activePlayer -= 1;
+        document.getElementsByClassName("current-turn")[0].textContent = "O";
+
+        button.classList.add("last-square-x");
+        previousButton.classList.remove("last-square-o");
+
+    }
+ 
+    previousButton = button;   
 }
 
 function checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren) {
@@ -100,7 +148,7 @@ function checkForIndividualWinner(parentElement, parentIndex, grandParentElement
                 parentElement.classList.add("square-container-complete-o");
             }
             
-            parentElement.replaceChildren();
+            // parentElement.replaceChildren();
 
             // Array.from(parentElement.children)[pattern[0]].classList.add("square-complete");
             // Array.from(parentElement.children)[pattern[1]].classList.add("square-complete");
@@ -112,13 +160,19 @@ function checkForIndividualWinner(parentElement, parentIndex, grandParentElement
             return;
 
         }
+    }
 
-        if (!isWon) {
+    if (!isWon) {
 
-            // console.log("NOT WON");
-
+        // console.log("NOT WON");
+        const allSquares = Array.from(parentElement.children).every((square) => square.innerText !== "");
+        if (allSquares) {
+            parentElement.classList.add("square-container-complete-d");
+            // parentElement.replaceChildren();
+            // Array.from(parentElement.children).forEach(child => {
+            //     child.style.display = "none";
+            // })
         }
-
     }
     
 
@@ -152,41 +206,57 @@ function checkForWinner(grandParentElementChildren) {
 
         }
 
-        if (!isWon) {
+    }
 
-            // console.log("NOT WON");
+    if (!isWon) {
 
-        }
+        // console.log("NOT WON");
 
     }
 
 }
 
+// MENU //
+let settingsShown = false;
+function showSettings() {
+    if (settingsShown == false) {
+        document.getElementById("settings-content").style.display = "block";
+        settingsShown = true;
+    } else {
+        document.getElementById("settings-content").style.display = "none";
+        settingsShown = false;
+    }
+}
 
-// Get the settings
-var settings = document.getElementById("settings");
+// Get the menu
+var menu = document.getElementById("menu-container");
 
 // Get the button that opens the modal
-var settingsButton = document.getElementById("settings-button");
+var menuButton = document.getElementById("menu-button");
 
 // Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close-settings")[0];
+// var span = document.getElementsByClassName("close-menu")[0];
 
 // When the user clicks on the button, open the modal
-settingsButton.onclick = function() {
-  settings.style.display = "block";
+menuButton.onclick = function() {
+  menu.style.display = "block";
 }
 
-// When the user clicks on <span> (x), close the settings
-span.onclick = function() {
-  settings.style.display = "none";
-}
+// // When the user clicks on <span> (x), close the menu
+// span.onclick = function() {
+//   menu.style.display = "none";
+// }
 
-// When the user clicks anywhere outside of the settings, close it
+// When the user clicks anywhere outside of the menu, close it
 window.onclick = function(event) {
-  if (event.target == settings) {
-    settings.style.display = "none";
-  }
+    if (event.target == menu) {
+        menu.style.display = "none";
+    }
+        
+    if (event.target.matches(".button-container") || event.target.matches(".menu-item-container")) {
+        document.getElementById("settings-content").style.display = "none";
+        settingsShown = false;
+    }
 } 
 
 const toggle = document.getElementById('theme-toggle');
