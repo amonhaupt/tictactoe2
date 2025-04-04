@@ -197,6 +197,7 @@ html, body {
     transition: background-color 0.3s ease;
 }
 #settings-button {
+    font-size: 2vmin;
     color: light-dark(black, white);
     background-color: light-dark(#C9E4F7, var(--blue));
     /* color: #ffffff; */
@@ -316,4 +317,12 @@ html, body {
         font-size: 3vmin;
         padding: 1.5vmin 3vmin;
     }
+    .menu-button {
+        font-size: 4vmin;
+        padding: 1.5vmin 3vmin;
+    }
+    #settings-button {
+        font-size: 3vmin;
+        padding: 1.5vmin 3vmin;
+    }   
 }
