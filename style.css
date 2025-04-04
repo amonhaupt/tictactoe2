@@ -54,6 +54,10 @@ html, body {
     /* height: calc(100vmin - 4vmin);  */
     aspect-ratio: 1 / 1;
 }
+.wait-for-move {
+    pointer-events: none;
+}
+
 .square-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -176,7 +180,6 @@ html, body {
 .square-complete {
     background-color: #ff0000;
 }
-
 
 .button-container {
     text-align: center;
