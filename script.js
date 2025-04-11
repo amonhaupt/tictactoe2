@@ -1,7 +1,7 @@
 // GAME //
 
 const gameState = {
-    globalBoards: ["", "", "", "", "", "", "", "", ""], // Tracks wins in sub-boards
+    globalBoard: ["", "", "", "", "", "", "", "", ""],
     subBoards: [
         ["", "", "", "", "", "", "", "", ""],
         ["", "", "", "", "", "", "", "", ""],
@@ -14,9 +14,8 @@ const gameState = {
         ["", "", "", "", "", "", "", "", ""]
     ],
     currentPlayer: 'X',
-    activeSubBoard: null // Index of the sub-board to play in
+    activeSubBoard: null,
 };
-
 
 const winPatterns = [
     [0, 1, 2],
@@ -41,6 +40,9 @@ let squareContainers = document.querySelectorAll(".square-container");
 
 function resetGame() {
 
+    document.getElementById("menu-container").style.display = "none";
+    document.getElementsByClassName("game-over")[0].style.display = "none";
+
     winStates = ["","","","","","","","",""];
     gameStates = [
         ["", "", "","", "", "","", "", ""],
@@ -59,6 +61,8 @@ function resetGame() {
 
     squares.forEach((square) => {
         square.classList.remove("square-disabled");
+        square.classList.remove("last-square-x");
+        square.classList.remove("last-square-o");
         square.textContent = "";
 
     })
@@ -196,9 +200,9 @@ function checkForIndividualWinner(parentElement, parentIndex, grandParentElement
             // Array.from(parentElement.children)[pattern[2]].classList.add("square-complete");
             winStates[parentIndex] = pos1;
 
-            gameState.globalBoards[parentIndex] = pos1;
+            gameState.globalBoard[parentIndex] = pos1;
 
-            console.log(pos1);
+            // console.log(pos1);
             isWon = true;
             checkForWinner(grandParentElementChildren);
             return;
@@ -207,10 +211,12 @@ function checkForIndividualWinner(parentElement, parentIndex, grandParentElement
     }
 
     if (!isWon) {
-
         // console.log("NOT WON");
         const allSquares = Array.from(parentElement.children).every((square) => square.innerText !== "");
         if (allSquares) {
+            winStates[parentIndex] = "D";
+
+            gameState.globalBoard[parentIndex] = "D";                                                                                                  
             parentElement.classList.add("square-container-complete-d");
             // parentElement.replaceChildren();
             // Array.from(parentElement.children).forEach(child => {
@@ -240,22 +246,28 @@ function checkForWinner(grandParentElementChildren) {
                 child.classList.add("disabled");
 
             });
-            if (gameState.currentPlayer == "X") {
+            if (gameState.currentPlayer == "O") {
                 alert("X WON");
             } else {
                 alert("O WON");
             }
+            document.getElementsByClassName("current-turn")[0].textContent = "";
+            document.getElementsByClassName("game-over")[0].style.display = "block";
             gameEnded = true;
             return;
 
-        }
+        } 
 
     }
 
     if (!isWon) {
-
-        // console.log("NOT WON");
-
+        if (gameState.globalBoard.every(cell => cell !== "")) {
+            alert("DRAW");
+        }
+    } else {
+        console.log("show new game");
+        document.getElementsByClassName("current-turn")[0].textContent = "";
+        document.getElementsByClassName("game-over")[0].style.display = "block";
     }
 
 }
@@ -318,60 +330,11 @@ toggle.addEventListener('change', () => {
   });
 
 
+/// MONTE CARLO TREE SEARCH ///
 
-// COMPUTER MOVES //
+// GET VALID MOVES //
 
-function delay(time) {
-    return new Promise(resolve => setTimeout(resolve, time));
-}
-
-function getRandomMove() {
-    let randomIndex = Math.floor(Math.random() * 9);
-    console.log(gameState.subBoards[gameState.activeSubBoard][randomIndex])
-    if (gameState.subBoards[gameState.activeSubBoard][randomIndex] == "") {
-        return randomIndex;
-    } else {
-        getRandomMove()
-    }
-}
-
-
-
-async function makeComputerMove() {
-    computerToMove = false;
-    // console.log("THINKING");
-    let bestMove
-    if (computerDifficulty != 2) {
-        bestMove = await findBestMove(gameState);
-    } else {
-        let randomIndex = await getRandomMove();
-        
-        bestMove = {subBoard : gameState.activeSubBoard, cell : randomIndex};
-        console.log(bestMove)
-    }
-
-
-    if (computerDifficulty == 2) {
-        await delay(Math.floor(Math.random() * (500 - 200 + 1)) + 200);
-        console.log("THINKING...");
-    }
-    // let bestMove = await findBestMove(gameState);
-
-    // console.log(bestMove);
-
-    let buttonRelativeIndex = bestMove.cell;
-    let parentIndex = bestMove.subBoard
-    let parentElement = squareContainers[parentIndex];
-    let grandParentElement = parentElement.parentElement;
-    let button = parentElement.children[buttonRelativeIndex];
-
-    // console.log("MAKING MOVE");
-    handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement, computerToMove);
-
-    computerToMove = true;
-}
-
-/// VALID MOVES ///
+//returns an Array of Objects each containing a subBoard and cell with the index
 function getValidMoves(state) {
     const { activeSubBoard, subBoards } = state;
     if (activeSubBoard !== null && !isSubBoardComplete(subBoards[activeSubBoard])) {
@@ -397,24 +360,8 @@ function isSubBoardComplete(board) {
     return checkWin(board) || board.every(cell => cell !== "");
 }
 
-
-/// EVALUTION ///
-function evaluate(state) {
-    const { globalBoards } = state;
-    const winner = checkWin(globalBoards);
-    if (winner == "X") return 100; 
-    if (winner == "O") return -100;
-    return 0; 
-}
-
 function checkWin(board) {
-    const winningLines = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8], 
-        [0, 3, 6], [1, 4, 7], [2, 5, 8],
-        [0, 4, 8], [2, 4, 6]            
-    ];
-    
-    for (const line of winningLines) {
+    for (const line of winPatterns) {
         const [a, b, c] = line;
         if (board[a] && board[a] === board[b] && board[a] === board[c]) {
             return board[a];
@@ -423,69 +370,153 @@ function checkWin(board) {
     return null;
 }
 
-
-/// MINIMAX ///
-function minimax(state, depth, alpha, beta, maximizingPlayer) {
-    const winner = checkWin(state.globalBoards);
-    if (winner || depth === 0) return evaluate(state);
-
-    const validMoves = getValidMoves(state);
-    
-    if (maximizingPlayer) {
-        let maxEval = -Infinity;
-        for (const move of validMoves) {
-            const newState = simulateMove(state, move);
-            const eval = minimax(newState, depth - 1, alpha, beta, false);
-            maxEval = Math.max(maxEval, eval);
-            alpha = Math.max(alpha, eval);
-            if (beta <= alpha) break;
+function checkWinGlobal(board) {
+    for (const line of winPatterns) {
+        const [a, b, c] = line;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            return board[a];
         }
-        return maxEval;
-    } else {
-        let minEval = Infinity;
-        for (const move of validMoves) {
-            const newState = simulateMove(state, move);
-            const eval = minimax(newState, depth - 1, alpha, beta, true);
-            minEval = Math.min(minEval, eval);
-            beta = Math.min(beta, eval);
-            if (beta <= alpha) break;
-        }
-        return minEval;
+    }
+    if (board.every(cell => cell !== "")) {
+        return "D";
+    }
+    return null;
+}
+
+// GET VALID MOVES END //
+
+
+// NODE //
+
+class Node {
+    constructor(state, parent = null, move = null) {
+        this.state = state; // The game state at this node
+        this.parent = parent; // Parent node
+        this.children = []; // Child nodes
+        this.visits = 0; // Number of times this node has been visited
+        this.wins = 0; // Number of wins from this node
+        this.move = move; // The move that led to this state
+    }
+
+    isFullyExpanded() {
+        return this.children.length === getValidMoves(this.state).length;
     }
 }
 
-function simulateMove(state, move) {
-    const newState = JSON.parse(JSON.stringify(state));
-    const { subBoard, cell } = move;
+// SELECT //
 
-    newState.subBoards[subBoard][cell] = state.currentPlayer;
+function select(node) {
+    while (node.children.length > 0) {
+        node = node.children.reduce((bestChild, child) => {
+            const ucb1 = (child.wins / (child.visits || 1)) + 
+                         Math.sqrt(2 * Math.log(node.visits + 1) / (child.visits || 1));
+            return ucb1 > bestChild.ucb1 ? { node: child, ucb1 } : bestChild;
+        }, { node: null, ucb1: -Infinity }).node;
+    }
+    return node;
+}
 
-    if (checkWin(newState.subBoards[subBoard])) {
-        newState.globalBoards[subBoard] = state.currentPlayer;
+// EXPAND //
+
+function expand(node) {
+
+    if (node.isFullyExpanded()) {
+        return null; // No expansion needed if all moves are already explored
     }
 
-    newState.currentPlayer = state.currentPlayer === 'X' ? 'O' : 'X';
+    const validMoves = getValidMoves(node.state);
 
-    newState.activeSubBoard = newState.globalBoards[cell] ? null : cell;
+    // console.log(validMoves);
 
+    const triedMoves = node.children.map(child => child.move);
+
+    for (const move of validMoves) {
+        // console.log(node.state.currentPlayer)
+        if (!triedMoves.some(m => m.subBoard === move.subBoard && m.cell === move.cell)) {
+            // console.log("APPLY MOVE EXPAND: ", move, node.state);
+            const newState = applyMove(node.state, move);
+            const childNode = new Node(newState, node, move);
+            node.children.push(childNode);
+            return childNode;
+        }
+    }
+}
+
+// SIMULATE //
+
+function simulate(state) {
+    // let currentState = JSON.parse(JSON.stringify(state));
+    let currentState = state;
+    while (!isGameOver(currentState)) {
+        const moves = getValidMoves(currentState);
+        const randomMove = moves[Math.floor(Math.random() * moves.length)];
+        // console.log("APPLY MOVE SIMULATE: ", randomMove);
+        currentState = applyMove(currentState, randomMove);
+    }
+    return checkWinGlobal(currentState.globalBoard); // Returns 'X', 'O', 'D' or null for still going.
+}
+
+function isGameOver(state) {
+    return checkWinGlobal(state.globalBoard) != null
+}
+
+
+// IF win is found in a subBoard we need to update the globalBoard aswell!!!
+
+function applyMove(state, move) {
+
+    // console.log(move);
+    // console.log(state, move)
+    let newState = state;
+    newState.activeSubBoard = move.subBoard;
+    newState.subBoards[move.subBoard][move.cell] = state.currentPlayer;
+    // console.log(newState)
+    let winState = checkWin(state.subBoards[move.subBoard]);
+    if (winState != null) {
+        state.globalBoard[move.subBoard] = winState;
+    }
+    state.currentPlayer = state.currentPlayer === "X" ? "O" : "X";
     return newState;
+
 }
 
-/// FIND BEST MOVE ///
-function findBestMove(state) {
-    let bestMove = null;
-    let bestValue = -Infinity;
+// BACK PROGAGATE //
 
-    for (const move of getValidMoves(state)) {
-        const newState = simulateMove(state, move);
-        const moveValue = minimax(newState, 3 /* Depth */, -Infinity, Infinity, false);
+function backpropagate(node, result, lookingFor) {
+    // console.log(result, node.state.currentPlayer)
 
-        console.log(bestMove, move, moveValue);
-        if (moveValue > bestValue) {
-            bestValue = moveValue;
-            bestMove = move;
+    // node.state.currentPlayer = node.state.currentPlayer === "X" ? "O" : "X";
+
+    while (node !== null) {
+        node.visits++;
+        // console.log("NODE STATE CURRENTPLAYER: ", node.state.currentPlayer, " RESULT: ", result, " WINs", node.wins);
+        // if (node.state.currentPlayer === result) {
+        if (lookingFor === result) {
+            node.wins++;
         }
+        node = node.parent;
     }
+}
 
-    return bestMove;
+// MCTS //
+
+function monteCarloTreeSearch(rootState, iterations) {
+
+    const searchState = JSON.parse(JSON.stringify(rootState));
+
+    const lookingFor = searchState.currentPlayer;
+
+    const rootNode = new Node(searchState);
+
+    for (let i = 0; i < iterations; i++) {
+        let node = select(rootNode); // Selection
+        if (!isGameOver(node.state)) {
+            node = expand(node); // Expansion
+        }
+        const result = simulate(node.state); // Simulation
+        backpropagate(node, result, lookingFor); // Backpropagation
+    }
+    console.log("FINAL STATE: ", rootNode, " looked for: ", lookingFor);
+    return rootNode.children.reduce((bestChild, child) => 
+        child.visits > bestChild.visits ? child : bestChild).move;
 }

@@ -115,6 +115,7 @@
             </div>
         </div>
         <div class="current-turn">O</div>
+        <button class="game-over" id="new-game" onclick="resetGame()">NEW GAME</button>
         <button id="menu-button" class="menu-button" onclick="showMenu()">MENU</button>
         <div id="menu-container" class="menu-container">
             <div class="menu-item-container">
@@ -127,11 +128,13 @@
                             <label for="theme-toggle" class="theme-toggle-label"><span>TOGGLE THEME</span></label>  
                         </div>
                     </div>
-                    <button id="new-game">NEW GAME</button>
+                    <!-- <p class="game-over" id="game-over">game-over</p> -->
+                    <button id="new-game" onclick="resetGame()">NEW GAME</button>
                     <button id="reset-game" onclick="resetGame()">RESET GAME</button>
                 </div> 
             </div>   
         </div>
+        
     </div>  
     <script src="script.js"></script>
 </body>
