@@ -222,6 +222,8 @@ function checkForIndividualWinner(parentElement, parentIndex, grandParentElement
             // Array.from(parentElement.children).forEach(child => {
             //     child.style.display = "none";
             // })
+            console.log("check for global draw")
+            checkForWinner(grandParentElementChildren);
         }
     }
     
@@ -261,8 +263,11 @@ function checkForWinner(grandParentElementChildren) {
     }
 
     if (!isWon) {
+        console.log("not won")
         if (gameState.globalBoard.every(cell => cell !== "")) {
             alert("DRAW");
+            document.getElementsByClassName("current-turn")[0].textContent = "";
+            document.getElementsByClassName("game-over")[0].style.display = "block";
         }
     } else {
         console.log("show new game");
