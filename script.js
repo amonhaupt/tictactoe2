@@ -278,9 +278,9 @@ function checkForWinner(grandParentElementChildren) {
 }
 
 // PWA //
-
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/tictactoe2/sw.js', {scope: "/tictactoe2"});
+    console.log("attempt sw register")
+    navigator.serviceWorker.register('/tictactoe2/sw.js', {scope: "/tictactoe2"}).then(res => console.log("sw registered").then(err => console.log("sw not registered", err)));
   }
   
 
