@@ -1,0 +1,10 @@
+{
+    "name": "TicTacToe2",
+    "short_name": "TTT2",
+    "description": "TicTacToe2 game",
+    "scope": "/tictactoe2/",
+    "start_url": "/tictactoe2/",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "display": "standalone"
+}
