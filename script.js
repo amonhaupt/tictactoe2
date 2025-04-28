@@ -277,6 +277,14 @@ function checkForWinner(grandParentElementChildren) {
 
 }
 
+// PWA //
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+  
+
+
 // MENU //
 let settingsShown = false;
 function showSettings() {
