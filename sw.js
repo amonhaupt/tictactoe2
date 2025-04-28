@@ -1,6 +1,6 @@
 var GHPATH = '/tictactoe2';
-var APP_PREFIX = 'app_';
-var VERSION = 'v1_';
+var APP_PREFIX = 'ttt2app_';
+var VERSION = 'v1.1_';
 var URLS = [
   `${GHPATH}/`,
   `${GHPATH}/index.html`,
