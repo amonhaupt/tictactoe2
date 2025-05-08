@@ -6,6 +6,7 @@
     --opaqueblue: rgba(201, 228, 247, 0.1); /* rgba(201, 228, 247, 0.1) */
     --darkbrown: #948979;
     --brown: #DFD0B8; 
+    --hoverColor: #ff6666;
   }
 html, body {
     height: 100%;
@@ -31,6 +32,7 @@ html, body {
     text-align: center;
     font-size: 3vmin;
     color: light-dark(#F7F7F7, #ffffff);
+    /* color: var(--hoverColor); */
     margin: 0;
     padding: 2vmin 0;
 }
@@ -107,7 +109,7 @@ html, body {
     transform: rotate(-45deg);
 }
 
-.square-container-complete-x> Button {
+.square-container-complete-x > Button {
     visibility: hidden;
 }
 
@@ -169,7 +171,7 @@ html, body {
 }
 .square:hover {
     /* background-color: #948979; */
-    border: 0.3vmin solid #ff6666;
+    border: 0.3vmin solid var(--hoverColor);
 }
 .square-disabled {
     pointer-events: none;

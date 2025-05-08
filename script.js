@@ -106,6 +106,7 @@ function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, gr
 
         gameState.currentPlayer = "X";
         document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
+        document.documentElement.style.setProperty('--hoverColor', '#ff6666');
         button.classList.add("last-square-o");
         previousButton.classList.remove("last-square-x");
 
@@ -117,6 +118,7 @@ function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, gr
         gameState.subBoards[parentIndex][buttonRelativeIndex] = "X";
 
         gameState.currentPlayer = "O";
+        document.documentElement.style.setProperty('--hoverColor', '#3498db');
         document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
 
         button.classList.add("last-square-x");
@@ -280,7 +282,10 @@ function checkForWinner(grandParentElementChildren) {
 // PWA //
 if ('serviceWorker' in navigator) {
     console.log("attempt sw register")
-    navigator.serviceWorker.register('/tictactoe2/sw.js', {scope: "/tictactoe2"}).then(res => console.log("sw registered").then(err => console.log("sw not registered", err)));
+    navigator.serviceWorker
+        .register('/tictactoe2/sw.js', {scope: "/tictactoe2"})
+        .then(res => console.log("sw registered"))
+        .catch(function(err) { console.log("sw not registered", err)});
   }
   
 
