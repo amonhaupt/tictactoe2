@@ -1,5 +1,15 @@
 :root {
     color-scheme: light dark;
+    --backgroundColor: #153448;
+    --textColor: #F7F7F7;
+    --menuButtonColor: #C9E4F7;
+    --squareBorder: #3c5b6f;
+    --lightSquareBorder: #C9E4F7;
+    --disabledSquareBorder: rgba(201, 228, 247, 0.1);
+    --colorO: #3498db;
+    --colorX: #ff6666;
+
+    /* OLD COLORS */
     --darkblue: #153448;
     --opaquedarkblue: rgba(61, 92, 113, 0.3); /* rgba(61, 92, 113, 0.3) */
     --blue: #3c5b6f;
@@ -13,7 +23,7 @@ html, body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color: light-dark(var(--darkblue), var(--darkblue));
+    background-color: light-dark(var(--backgroundColor), var(--backgroundColor));
     font-family: 'Open Sans', sans-serif;
     font-weight: 800;
     color: white;
@@ -24,14 +34,14 @@ html, body {
 }
 .game-header h1 {
     font-size: 3vmin;
-    color: light-dark(#F7F7F7, #ffffff);
+    color: light-dark(var(--textColor), var(--textColor));
     margin: 0;
     padding: 2vmin 0;
 }
 .current-turn {
     text-align: center;
     font-size: 3vmin;
-    color: light-dark(#F7F7F7, #ffffff);
+    color: light-dark(var(--textColor), var(--textColor));
     /* color: var(--hoverColor); */
     margin: 0;
     padding: 2vmin 0;
@@ -82,7 +92,7 @@ html, body {
     position: relative;
     border-radius: 50%;
     background-color: transparent;
-    box-shadow: 0 0 0 2vmin #3498db;
+    box-shadow: 0 0 0 2vmin var(--colorO);
     box-sizing: border-box;
     margin: 0;
 }
@@ -101,7 +111,7 @@ html, body {
     transform: rotate(90deg);
 } */
 .square-container-complete-x {
-    background: red;
+    background: var(--colorX);
     height: 100%;
     width: 10%;
     left: 45%;
@@ -114,7 +124,7 @@ html, body {
 }
 
 .square-container-complete-x::after {
-    background: red;
+    background: var(--colorX);
     content: "";
     position: absolute;
     box-sizing: border-box;
@@ -132,7 +142,7 @@ html, body {
 }
 
 .square-container-complete-d::after {
-    background: #ff6666;
+    background: var(--textColor);
     content: "";
     position: absolute;
     box-sizing: border-box;
@@ -145,23 +155,23 @@ html, body {
 
 .disabled > .square {
     /* opacity: 0.6; */
-    border: 0.3vmin solid light-dark(var(--opaqueblue), var(--opaquedarkblue));
+    border: 0.3vmin solid light-dark(var(--disabledSquareBorder), var(--disabledSquareBorder));
     pointer-events: none;
 }
 .disabled > .last-square-x {
-    border: 0.3vmin solid #ff6666 !important;
+    border: 0.3vmin solid var(--colorX) !important;
 }
 .disabled > .last-square-o {
-    border: 0.3vmin solid #3498db !important;
+    border: 0.3vmin solid var(--colorO) !important;
 }
 .square {
     width: 100%;
     height: 100%;
     font-size: 3vmin;
     font-weight: bold;
-    color: light-dark(#F7F7F7, #ffffff);
-    background-color: light-dark(var(--darkblue),var(--darkblue));
-    border: 0.3vmin solid light-dark(#C9E4F7, var(--blue));
+    color: light-dark(var(--textColor), var(--textColor));
+    background-color: light-dark(var(--backgroundColor),var(--backgroundColor));
+    border: 0.3vmin solid light-dark(var(--lightSquareBorder), var(--squareBorder));
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -175,17 +185,22 @@ html, body {
 }
 .square-disabled {
     pointer-events: none;
-    border: 0.3vmin solid light-dark(rgba(201, 228, 247, 0.1), rgba(61, 92, 113, 0.3));
+    border: 0.3vmin solid light-dark(var(--disabledSquareBorder), var(--disabledSquareBorder));
 }
 .square-disabled.last-square-x {
-    border: 0.3vmin solid #ff6666 !important;
+    border: 0.3vmin solid var(--colorX) !important;
 }
 .square-disabled.last-square-o {
-    border: 0.3vmin solid #3498db !important;
+    border: 0.3vmin solid var(--colorO) !important;
 }
+
+
+/* unused */
 .square-complete {
     background-color: #ff0000;
 }
+/* unused */
+
 
 .button-container {
     text-align: center;
@@ -204,25 +219,27 @@ html, body {
 }
 #settings-button {
     font-size: 2vmin;
-    color: light-dark(black, white);
-    background-color: light-dark(#C9E4F7, var(--blue));
+    color: light-dark(var(--textColor), var(--textColor));
+    background-color: light-dark(var(--lightSquareBorder), var(--squareBorder));
     /* color: #ffffff; */
 
 }
 #settings-button:hover {
-    background-color: light-dark(rgba(201, 228, 247, 0.5), rgba(60, 91, 111, 0.5));
+    background-color: light-dark(var(--squareBorder), var(--lightSquareBorder));
 }
 #settings-content {
     display: none;
     padding: 3vmin;
-    border: 0.3vmin solid light-dark(#C9E4F7, var(--blue));
+    border: 0.3vmin solid light-dark(var(--lightSquareBorder), var(--squareBorder));
     border-radius: 5px;
 }
 .settings-item {
     box-sizing: border-box;
     padding: 2vmin;
-    border: 0.3vmin solid light-dark(#C9E4F7, var(--blue));
+    border: 0.3vmin solid light-dark(var(--lightSquareBorder), var(--squareBorder));
     border-radius: 5px;
+    color: var(--textColor);
+    margin: 5px;
 }
 .theme-toggle {
     position: absolute;
@@ -230,6 +247,7 @@ html, body {
     cursor: pointer;
 }
 .theme-toggle-label {
+    color: var(--textColor);
     box-sizing: border-box;
     display: block;
     width: 100%;
@@ -239,6 +257,24 @@ html, body {
 .theme-toggle-label > span {
     pointer-events: none;
 }
+
+.theme-radio-list {
+    max-height: 180px;      /* Adjust as needed */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .theme-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  
+  
+
 .show-settings {display: block;}
 
 #reset-game {
@@ -255,15 +291,15 @@ html, body {
     top: 0;
     font-size: 2vmin;
     padding: 1vmin 2vmin;
-    background-color: var(--darkblue);
-    color: #ffffff;
+    background-color: light-dark(var(--backgroundColor), var(--backgroundColor));
+    color: light-dark(var(--textColor), var(--textColor));
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 .menu-button:hover {
-    background-color: var(--blue);
+    background-color: var(--menuButtonColor);
 }
 
 .menu-container {
@@ -274,7 +310,7 @@ html, body {
     top: 0;
     width: 100%; 
     height: 100%; 
-    overflow: auto; 
+    overflow: none; 
     background-color: rgb(0,0,0); 
     background-color: rgba(0,0,0,0.4); 
   }
@@ -287,11 +323,11 @@ html, body {
   /* Modal Content/Box */
   .menu-item-container {
     text-align: center;
-    background-color: light-dark(var(--darkblue),var(--darkblue));;
+    background-color: light-dark(var(--backgroundColor),var(--backgroundColor));;
     margin: 15% auto; /* 15% from the top and centered */
     padding: 20px;
     border-radius: 5px;
-    border: 0.3vmin solid light-dark(#C9E4F7, var(--blue));
+    border: 0.3vmin solid light-dark(var(--lightSquareBorder), var(--squareBorder));
     width: 80%; /* Could be more or less, depending on screen size */
   }
   

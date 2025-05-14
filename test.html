@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TicTacToe²</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="test.css">
     <link rel="icon" type="image/-icon" href="assets/favicon.ico">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:800&display=swap' rel='stylesheet'>
     <link rel="manifest" href="/tictactoe2/manifest.webmanifest">
@@ -16,7 +17,7 @@
             <h1>TicTacToe²</h1>
         </div>
         <div class="game-container">
-            <div class="square-container" id="square-container-0">
+            <div class="square-container square-container-complete-x" id="square-container-0">
                 <button class="square"></button>
                 <button class="square"></button>
                 <button class="square"></button>
@@ -27,7 +28,7 @@
                 <button class="square"></button>
                 <button class="square"></button>
             </div>
-            <div class="square-container" id="square-container-1">
+            <div class="square-container square-container-complete-d" id="square-container-1">
                 <button class="square"></button>
                 <button class="square"></button>
                 <button class="square"></button>
@@ -38,7 +39,7 @@
                 <button class="square"></button>
                 <button class="square"></button>
             </div>
-            <div class="square-container" id="square-container-2">
+            <div class="square-container square-container-complete-o" id="square-container-2">
                 <button class="square"></button>
                 <button class="square"></button>
                 <button class="square"></button>
@@ -50,15 +51,15 @@
                 <button class="square"></button>
             </div>
             <div class="square-container" id="square-container-3">
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
             </div>
             <div class="square-container" id="square-container-4">
                 <button class="square"></button>
@@ -83,26 +84,26 @@
                 <button class="square"></button>
             </div>
             <div class="square-container" id="square-container-6">
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
             </div>
             <div class="square-container" id="square-container-7">
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
-                <button class="square"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
+                <button class="square square-disabled"></button>
             </div>
             <div class="square-container" id="square-container-8">
                 <button class="square"></button>
@@ -117,7 +118,7 @@
             </div>
         </div>
         <div class="current-turn">O</div>
-        <button class="game-over" id="new-game-gameover" onclick="resetGame()">NEW GAME</button>
+        <button class="game-over" id="new-game" onclick="resetGame()">NEW GAME</button>
         <button id="menu-button" class="menu-button" onclick="showMenu()">MENU</button>
         <div id="menu-container" class="menu-container">
             <div class="menu-item-container">
@@ -127,12 +128,8 @@
                     <div id="settings-content">
                         <div class="settings-item">
                             <input type="checkbox" id="theme-toggle" class="theme-toggle">
-                            <label for="theme-toggle" class="theme-toggle-label"><span>TOGGLE HIGH CONTRAST</span></label>  
+                            <label for="theme-toggle" class="theme-toggle-label"><span>TOGGLE THEME</span></label>  
                         </div>
-                        <div class="settings-item" id="theme-radio-settings-item">
-                            <label class="settings-label"><span>Select Theme</span></label>
-                            <div id="theme-radio-list" class="theme-radio-list"></div>
-                          </div>
                     </div>
                     <!-- <p class="game-over" id="game-over">game-over</p> -->
                     <button id="new-game" onclick="resetGame()">NEW GAME</button>
@@ -142,6 +139,50 @@
         </div>
         
     </div>  
-    <script src="script.js"></script>
+    <script src="test.js"></script>
+     <script> 
+
+        const earthyCalmPalette = {
+            backgroundColor:      "#2E3D25",
+            textColor:            "#F4F1DE",
+            menuButtonColor:      "#A9CBB7",
+            squareBorder:         "#556B2F",
+            lightSquareBorder:    "#A9CBB7",
+            disabledSquareBorder: "rgba(169, 203, 183, 0.1)",
+            colorO:               "#8FBC8F",
+            colorX:               "#D2691E"
+        }
+
+        const blackPalette = {
+            backgroundColor:      "#000000",
+            textColor:            "#FFFFFF",
+            menuButtonColor:      "#333333",
+            squareBorder:         "#555555",
+            lightSquareBorder:    "#777777",
+            disabledSquareBorder: "rgba(255, 255, 255, 0.1)",
+            colorO:               "#00FFFF",
+            colorX:               "#FF4500"
+        }
+
+        const whitePalette = {
+            backgroundColor:      "#FFFFFF",
+            textColor:            "#222222",
+            menuButtonColor:      "#DDDDDD",
+            squareBorder:         "#AAAAAA",
+            lightSquareBorder:    "#EEEEEE",
+            disabledSquareBorder: "rgba(34, 34, 34, 0.1)",
+            colorO:               "#007ACC",
+            colorX:               "#D9534F"
+        }      
+
+        document.documentElement.style.setProperty('--backgroundColor', whitePalette.backgroundColor);
+        document.documentElement.style.setProperty('--textColor', whitePalette.textColor);
+        document.documentElement.style.setProperty('--menuButtonColor', whitePalette.menuButtonColor);
+        document.documentElement.style.setProperty('--squareBorder', whitePalette.squareBorder);
+        document.documentElement.style.setProperty('--lightSquareBorder', whitePalette.lightSquareBorder);
+        document.documentElement.style.setProperty('--disabledSquareBorder', whitePalette.disabledSquareBorder);
+        document.documentElement.style.setProperty('--colorO', whitePalette.colorO);
+        document.documentElement.style.setProperty('--colorX', whitePalette.colorX);
+     </script>
 </body>
 </html>

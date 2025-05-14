@@ -92,7 +92,7 @@ squares.forEach((square, index) => {
 var previousButton = document.createElement("button");
 function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement, computerMove) {
 
-    // console.log(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement);
+    console.log("button: ", button, "buttonRelativeIndex: ", buttonRelativeIndex, "parentElement: ", parentElement, "parentIndex: ", parentIndex, "grandParentElement: ", grandParentElement);
 
     currentBoard = buttonRelativeIndex;
     gameState.activeSubBoard = buttonRelativeIndex;
@@ -106,7 +106,7 @@ function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, gr
 
         gameState.currentPlayer = "X";
         document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
-        document.documentElement.style.setProperty('--hoverColor', '#ff6666');
+        document.documentElement.style.setProperty('--hoverColor', activeColorPallete.colorX);
         button.classList.add("last-square-o");
         previousButton.classList.remove("last-square-x");
 
@@ -118,7 +118,7 @@ function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, gr
         gameState.subBoards[parentIndex][buttonRelativeIndex] = "X";
 
         gameState.currentPlayer = "O";
-        document.documentElement.style.setProperty('--hoverColor', '#3498db');
+        document.documentElement.style.setProperty('--hoverColor', activeColorPallete.colorO);
         document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
 
         button.classList.add("last-square-x");
@@ -166,12 +166,19 @@ function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, gr
 
         });
 
-        if (computerMove == true) {
-            document.getElementsByClassName("current-turn")[0].textContent = "WAIT...";
-            grandParentElement.classList.add("wait-for-move");
-            makeComputerMove();
+        if (computerToMove == true) {
+            // document.getElementsByClassName("current-turn")[0].textContent = "WAIT...";
+            // grandParentElement.classList.add("wait-for-move");
+            // makeComputerMove();
+
+            makeRandomMove();
+
+            computerToMove = false;
+            return;
+
         } else {
-            grandParentElement.classList.remove("wait-for-move");
+            // grandParentElement.classList.remove("wait-for-move");
+            return;
         }
     }
 
@@ -281,11 +288,11 @@ function checkForWinner(grandParentElementChildren) {
 
 // PWA //
 
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('Service Worker registered!', reg))
-      .catch(err => console.error('Service Worker registration failed:', err));
-  }
+// if ('serviceWorker' in navigator) {
+//     navigator.serviceWorker.register('./sw.js')
+//       .then(reg => console.log('Service Worker registered!', reg))
+//       .catch(err => console.error('Service Worker registration failed:', err));
+//   }
   
   
 
@@ -295,9 +302,15 @@ let settingsShown = false;
 function showSettings() {
     if (settingsShown == false) {
         document.getElementById("settings-content").style.display = "block";
+        document.getElementById("new-game").style.display = "none";
+        document.getElementById("reset-game").style.display = "none";
+        document.getElementById("settings-button").textContent = "CLOSE SETTINGS";
         settingsShown = true;
     } else {
         document.getElementById("settings-content").style.display = "none";
+        document.getElementById("new-game").style.display = "block";
+        document.getElementById("reset-game").style.display = "block";
+        document.getElementById("settings-button").textContent = "SETTINGS";
         settingsShown = false;
     }
 }
@@ -335,7 +348,7 @@ window.onclick = function(event) {
 
 const toggle = document.getElementById('theme-toggle');
 
-const savedTheme = localStorage.getItem('theme');
+const savedTheme = localStorage.getItem('highContrast');
 if (savedTheme) {
   document.documentElement.style.colorScheme = savedTheme;
   toggle.checked = savedTheme === 'dark';
@@ -344,8 +357,199 @@ if (savedTheme) {
 toggle.addEventListener('change', () => {
     const theme = toggle.checked ? 'dark' : 'light';
     document.documentElement.style.colorScheme = theme;
-    localStorage.setItem('theme', theme); 
+    localStorage.setItem('highContrast', theme); 
   });
+
+  
+
+/// COLOR PALLETES ///
+const standardPallete = {
+    backgroundColor:      "#153448",
+    textColor:            "#F7F7F7",
+    menuButtonColor:      "#C9E4F7",
+    squareBorder:         "#3c5b6f",
+    lightSquareBorder:    "#C9E4F7",
+    disabledSquareBorder: "rgba(201, 228, 247, 0.1)",
+    colorO:               "#3498db",
+    colorX:               "#ff6666"
+};
+
+const earthyCalmPalette = {
+    backgroundColor:      "#2E3D25",
+    textColor:            "#F4F1DE",
+    menuButtonColor:      "#A9CBB7",
+    squareBorder:         "#556B2F",
+    lightSquareBorder:    "#A9CBB7",
+    disabledSquareBorder: "rgba(169, 203, 183, 0.1)",
+    colorO:               "#8FBC8F",
+    colorX:               "#D2691E"
+}
+
+const neonPalette = {
+    backgroundColor:      "#181F38",
+    textColor:            "#E0FFFA",
+    menuButtonColor:      "#5DFDCB",
+    squareBorder:         "#2C5364",
+    lightSquareBorder:    "#5DFDCB",
+    disabledSquareBorder: "rgba(93, 253, 203, 0.1)",
+    colorO:               "#00B8A9",
+    colorX:               "#FF2E63"
+}
+
+const sunsetPalette = {
+    backgroundColor:      "#3B1F2B",
+    textColor:            "#FFF8E7",
+    menuButtonColor:      "#FFB677",
+    squareBorder:         "#A23E48",
+    lightSquareBorder:    "#FFB677",
+    disabledSquareBorder: "rgba(255, 182, 119, 0.1)",
+    colorO:               "#FF7043",
+    colorX:               "#FFD166"
+}
+
+const pastelPalette = {
+    backgroundColor:      "#DDE6ED",
+    textColor:            "#2E3A59",
+    menuButtonColor:      "#89CFF0",
+    squareBorder:         "#7A9CC6",
+    lightSquareBorder:    "#B0D0F0",
+    disabledSquareBorder: "rgba(137, 207, 240, 0.2)",
+    colorO:               "#4A90E2",
+    colorX:               "#E94F37"
+}
+
+const retroArcadePalette = {
+    backgroundColor:      "#22223B",
+    textColor:            "#F2E9E4",
+    menuButtonColor:      "#F26CA7",
+    squareBorder:         "#4A4E69",
+    lightSquareBorder:    "#F26CA7",
+    disabledSquareBorder: "rgba(242, 108, 167, 0.1)",
+    colorO:               "#38B6FF",
+    colorX:               "#FFDE59"
+}
+
+const forestNightPalette = {
+    backgroundColor:      "#232D23",
+    textColor:            "#D6E5E3",
+    menuButtonColor:      "#7CA982",
+    squareBorder:         "#3C5A3A",
+    lightSquareBorder:    "#7CA982",
+    disabledSquareBorder: "rgba(124, 169, 130, 0.1)",
+    colorO:               "#A3C1AD",
+    colorX:               "#D9853B"
+}
+
+const blackPalette = {
+    backgroundColor:      "#000000",
+    textColor:            "#FFFFFF",
+    menuButtonColor:      "#333333",
+    squareBorder:         "#555555",
+    lightSquareBorder:    "#777777",
+    disabledSquareBorder: "rgba(255, 255, 255, 0.1)",
+    colorO:               "#00FFFF",
+    colorX:               "#FF4500"
+}
+
+const whitePalette = {
+    backgroundColor:      "#FFFFFF",
+    textColor:            "#222222",
+    menuButtonColor:      "#DDDDDD",
+    squareBorder:         "#AAAAAA",
+    lightSquareBorder:    "#EEEEEE",
+    disabledSquareBorder: "rgba(34, 34, 34, 0.1)",
+    colorO:               "#007ACC",
+    colorX:               "#D9534F"
+}
+
+const activeColorPallete = standardPallete;
+const palettes = {
+    standardPallete,
+    earthyCalmPalette,
+    neonPalette,
+    sunsetPalette,
+    pastelPalette,
+    retroArcadePalette,
+    forestNightPalette,
+    blackPalette,
+    whitePalette
+  };
+  
+const colorPalletes = [
+    { id: "standardPallete", label: "Standard" },
+    { id: "earthyCalmPalette", label: "Earthy Calm" },
+    { id: "neonPalette", label: "Neon" },
+    { id: "sunsetPalette", label: "Sunset" },
+    { id: "pastelPalette", label: "Pastel" },
+    { id: "retroArcadePalette", label: "Retro Arcade" },
+    { id: "forestNightPalette", label: "Forest Night" },
+    { id: "blackPalette", label: "Black" },
+    { id: "whitePalette", label: "White" }
+  ];
+
+  const radioList = document.getElementById('theme-radio-list');
+  colorPalletes.forEach((palette, i) => {
+    const label = document.createElement('label');
+    label.className = 'theme-radio-label';
+  
+    const input = document.createElement('input');
+    input.type = 'radio';
+    input.name = 'theme-selection';
+    input.value = palette.id;
+    input.id = `theme-radio-${palette.id}`;
+    if (i === 0) input.checked = true;
+  
+    const span = document.createElement('span');
+    span.textContent = palette.label;
+  
+    label.appendChild(input);
+    label.appendChild(span);
+    radioList.appendChild(label);
+  });
+
+  const themeRadios = document.querySelectorAll('input[name="theme-selection"]');
+
+  themeRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (this.checked) {
+        document.documentElement.style.setProperty('--backgroundColor', palettes[this.value].backgroundColor);
+        document.documentElement.style.setProperty('--textColor', palettes[this.value].textColor);
+        document.documentElement.style.setProperty('--menuButtonColor', palettes[this.value].menuButtonColor);
+        document.documentElement.style.setProperty('--squareBorder', palettes[this.value].squareBorder);
+        document.documentElement.style.setProperty('--lightSquareBorder', palettes[this.value].lightSquareBorder);
+        document.documentElement.style.setProperty('--disabledSquareBorder', palettes[this.value].disabledSquareBorder);
+        document.documentElement.style.setProperty('--colorO', palettes[this.value].colorO);
+        document.documentElement.style.setProperty('--colorX', palettes[this.value].colorX);
+      }
+    });
+  });
+
+
+  
+/// RANDOM MOVE ///
+function makeRandomMove() {
+
+    computerToMove = true;
+
+    const moves = getValidMoves(gameState);
+    let randomMove = moves[Math.floor(Math.random() * moves.length)];
+    let buttonIndex;
+
+    if (randomMove.subBoard > 0) {
+        buttonIndex = randomMove.cell + (9 * randomMove.subBoard);
+    } else {
+        buttonIndex = randomMove.cell;
+    }
+
+    button = document.getElementsByClassName("square")[buttonIndex];
+    buttonRelativeIndex = randomMove.cell;
+    parentElement = document.getElementsByClassName("square-container")[randomMove.subBoard]
+    parentIndex = randomMove.subBoard;
+    grandParentElement = document.getElementsByClassName("game-container")[0];
+
+    handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement);
+}
+
 
 
 /// MONTE CARLO TREE SEARCH ///
@@ -413,6 +617,7 @@ class Node {
         this.children = []; // Child nodes
         this.visits = 0; // Number of times this node has been visited
         this.wins = 0; // Number of wins from this node
+        this.draws = 0;
         this.move = move; // The move that led to this state
     }
 
