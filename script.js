@@ -1,371 +1,15 @@
-// GAME //
-
-const gameState = {
-    globalBoard: ["", "", "", "", "", "", "", "", ""],
-    subBoards: [
-        ["", "", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", "", ""]
-    ],
-    currentPlayer: 'X',
-    activeSubBoard: null,
-};
-
-const winPatterns = [
-    [0, 1, 2],
-    [0, 3, 6],
-    [0, 4, 8],
-    [1, 4, 7],
-    [2, 5, 8],
-    [2, 4, 6],
-    [3, 4, 5],
-    [6, 7, 8]
-];
-let playingAgainstComputer = false;
-let computerToMove = false;
-let computerDifficulty = 2;
-let winStates;
-let gameEnded;
-let gameStates;
-let currentBoard;
-// let currentPlayer;
-let squares = document.querySelectorAll(".square");
-let squareContainers = document.querySelectorAll(".square-container");
-
-function resetGame() {
-
-    document.getElementById("menu-container").style.display = "none";
-    document.getElementsByClassName("game-over")[0].style.display = "none";
-
-    winStates = ["","","","","","","","",""];
-    gameStates = [
-        ["", "", "","", "", "","", "", ""],
-        ["", "", "","", "", "","", "", ""],
-        ["", "", "","", "", "","", "", ""],
-        ["", "", "","", "", "","", "", ""],
-        ["", "", "","", "", "","", "", ""],
-        ["", "", "","", "", "","", "", ""],
-        ["", "", "","", "", "","", "", ""],
-        ["", "", "","", "", "","", "", ""],
-        ["", "", "","", "", "","", "", ""]
-    ];
-    gameEnded = false;
-    gameState.currentPlayer = "X";
-    document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
-
-    squares.forEach((square) => {
-        square.classList.remove("square-disabled");
-        square.classList.remove("last-square-x");
-        square.classList.remove("last-square-o");
-        square.textContent = "";
-
-    })
-
-    squareContainers.forEach((container) => {
-        container.classList.remove("square-container-complete-x");
-        container.classList.remove("square-container-complete-o");
-        container.classList.remove("square-container-complete-d");
-        container.classList.remove("disabled");
-    })
-}
-resetGame()
-
-squares.forEach((square, index) => {
-    square.addEventListener('click', function(event) {
-        const button = event.target;
-        const parentElement = event.target.parentElement;
-        const grandParentElement = event.target.parentElement.parentElement;
-        const buttonRelativeIndex = (index - (9 * Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement)));
-        const alsoButtonRelativeIndex = (Array.from(event.target.parentElement.children).indexOf(event.target));
-        const parentIndex = Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement);
-
-        handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement, computerToMove);
-    });
-});
-
-var previousButton = document.createElement("button");
-function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement, computerMove) {
-
-    console.log("button: ", button, "buttonRelativeIndex: ", buttonRelativeIndex, "parentElement: ", parentElement, "parentIndex: ", parentIndex, "grandParentElement: ", grandParentElement);
-
-    currentBoard = buttonRelativeIndex;
-    gameState.activeSubBoard = buttonRelativeIndex;
-
-    if (gameState.currentPlayer == "O") {
-
-        button.textContent = "O";
-        gameStates[parentIndex][buttonRelativeIndex] = "O";
-
-        gameState.subBoards[parentIndex][buttonRelativeIndex] = "O";
-
-        gameState.currentPlayer = "X";
-        document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
-        document.documentElement.style.setProperty('--hoverColor', activeColorPallete.colorX);
-        button.classList.add("last-square-o");
-        previousButton.classList.remove("last-square-x");
-
-    } else {
-
-        button.textContent = "X";
-        gameStates[parentIndex][buttonRelativeIndex] = "X";
-
-        gameState.subBoards[parentIndex][buttonRelativeIndex] = "X";
-
-        gameState.currentPlayer = "O";
-        document.documentElement.style.setProperty('--hoverColor', activeColorPallete.colorO);
-        document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
-
-        button.classList.add("last-square-x");
-        previousButton.classList.remove("last-square-o");
-
-    }
-
-    previousButton = button;   
-
-    grandParentElementChildren = Array.from(grandParentElement.children);
-
-    checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren);
-
-    button.classList.add("square-disabled");
-
-    if (!gameEnded) {
-    
-        grandParentElementChildren.forEach((child, index) => {
-
-            if (squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-x") || squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-o") || squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-d")) {
-
-                if (child.classList.contains("square-container-complete-x") || child.classList.contains("square-container-complete-o") || child.classList.contains("square-container-complete-d")) {
-
-                    child.classList.add("disabled");
-                    
-                } else {
-
-                    child.classList.remove("disabled");
-
-                }
-
-            } else {
-
-                if (index != buttonRelativeIndex) {
-
-                    child.classList.add("disabled");
-        
-                } else {
-        
-                    child.classList.remove("disabled");
-        
-                }
-
-            }
-
-        });
-
-        if (computerToMove == true) {
-            // document.getElementsByClassName("current-turn")[0].textContent = "WAIT...";
-            // grandParentElement.classList.add("wait-for-move");
-            // makeComputerMove();
-
-            makeRandomMove();
-
-            computerToMove = false;
-            return;
-
-        } else {
-            // grandParentElement.classList.remove("wait-for-move");
-            return;
-        }
-    }
-
-}
-
-function checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren) {
-
-    var isWon = false;
-
-    for (let pattern of winPatterns) {
-
-        let pos1 = Array.from(parentElement.children)[pattern[0]].innerText;
-        let pos2 = Array.from(parentElement.children)[pattern[1]].innerText;
-        let pos3 = Array.from(parentElement.children)[pattern[2]].innerText;
-
-        if (pos1 !== "" && pos2 !== "" && pos3 !== "" && pos1 === pos2 && pos2 === pos3) {
-
-            if (gameState.currentPlayer == "O") {
-                parentElement.classList.add("square-container-complete-x");
-            } else {
-                parentElement.classList.add("square-container-complete-o");
-            }
-            
-            // parentElement.replaceChildren();
-
-            // Array.from(parentElement.children)[pattern[0]].classList.add("square-complete");
-            // Array.from(parentElement.children)[pattern[1]].classList.add("square-complete");
-            // Array.from(parentElement.children)[pattern[2]].classList.add("square-complete");
-            winStates[parentIndex] = pos1;
-
-            gameState.globalBoard[parentIndex] = pos1;
-
-            // console.log(pos1);
-            isWon = true;
-            checkForWinner(grandParentElementChildren);
-            return;
-
-        }
-    }
-
-    if (!isWon) {
-        // console.log("NOT WON");
-        const allSquares = Array.from(parentElement.children).every((square) => square.innerText !== "");
-        if (allSquares) {
-            winStates[parentIndex] = "D";
-
-            gameState.globalBoard[parentIndex] = "D";                                                                                                  
-            parentElement.classList.add("square-container-complete-d");
-            // parentElement.replaceChildren();
-            // Array.from(parentElement.children).forEach(child => {
-            //     child.style.display = "none";
-            // })
-            console.log("check for global draw")
-            checkForWinner(grandParentElementChildren);
-        }
-    }
-    
-
-}
-
-function checkForWinner(grandParentElementChildren) {
-
-    var isWon = false;
-
-    for (let pattern of winPatterns) {
-
-        let pos1 = winStates[pattern[0]];
-        let pos2 = winStates[pattern[1]];
-        let pos3 = winStates[pattern[2]];
-
-        if (pos1 !== "" && pos2 !== "" && pos3 !== "" && pos1 === pos2 && pos2 === pos3) {
-
-            isWon = true;
-            grandParentElementChildren.forEach((child, index) => {
-                
-                child.classList.add("disabled");
-
-            });
-            if (gameState.currentPlayer == "O") {
-                alert("X WON");
-            } else {
-                alert("O WON");
-            }
-            document.getElementsByClassName("current-turn")[0].textContent = "";
-            document.getElementsByClassName("game-over")[0].style.display = "block";
-            gameEnded = true;
-            return;
-
-        } 
-
-    }
-
-    if (!isWon) {
-        console.log("not won")
-        if (gameState.globalBoard.every(cell => cell !== "")) {
-            alert("DRAW");
-            document.getElementsByClassName("current-turn")[0].textContent = "";
-            document.getElementsByClassName("game-over")[0].style.display = "block";
-        }
-    } else {
-        console.log("show new game");
-        document.getElementsByClassName("current-turn")[0].textContent = "";
-        document.getElementsByClassName("game-over")[0].style.display = "block";
-    }
-
-}
-
-// PWA //
-
-// if ('serviceWorker' in navigator) {
-//     navigator.serviceWorker.register('./sw.js')
-//       .then(reg => console.log('Service Worker registered!', reg))
-//       .catch(err => console.error('Service Worker registration failed:', err));
-//   }
-  
-  
-
-
-// MENU //
-let settingsShown = false;
-function showSettings() {
-    if (settingsShown == false) {
-        document.getElementById("settings-content").style.display = "block";
-        document.getElementById("new-game").style.display = "none";
-        document.getElementById("reset-game").style.display = "none";
-        document.getElementById("settings-button").textContent = "CLOSE SETTINGS";
-        settingsShown = true;
-    } else {
-        document.getElementById("settings-content").style.display = "none";
-        document.getElementById("new-game").style.display = "block";
-        document.getElementById("reset-game").style.display = "block";
-        document.getElementById("settings-button").textContent = "SETTINGS";
-        settingsShown = false;
-    }
-}
-
-// Get the menu
-var menu = document.getElementById("menu-container");
-
-// Get the button that opens the modal
-var menuButton = document.getElementById("menu-button");
-
-// Get the <span> element that closes the modal
-// var span = document.getElementsByClassName("close-menu")[0];
-
-// When the user clicks on the button, open the modal
-menuButton.onclick = function() {
-  menu.style.display = "block";
-}
-
-// // When the user clicks on <span> (x), close the menu
-// span.onclick = function() {
-//   menu.style.display = "none";
-// }
-
-// When the user clicks anywhere outside of the menu, close it
-window.onclick = function(event) {
-    if (event.target == menu) {
-        menu.style.display = "none";
-    }
-        
-    if (event.target.matches(".button-container") || event.target.matches(".menu-item-container")) {
-        document.getElementById("settings-content").style.display = "none";
-        document.getElementById("new-game").style.display = "block";
-        document.getElementById("reset-game").style.display = "block";
-        document.getElementById("settings-button").textContent = "SETTINGS";
-        settingsShown = false;
-    }
-} 
-
-const toggle = document.getElementById('theme-toggle');
-
-const savedTheme = localStorage.getItem('highContrast');
-if (savedTheme) {
-  document.documentElement.style.colorScheme = savedTheme;
-  toggle.checked = savedTheme === 'dark';
-}
-
-toggle.addEventListener('change', () => {
-    const theme = toggle.checked ? 'dark' : 'light';
-    document.documentElement.style.colorScheme = theme;
-    localStorage.setItem('highContrast', theme); 
-  });
-
-  
-
 /// COLOR PALLETES ///
+const preloadPallete = {
+    backgroundColor:      "#000000",
+    textColor:            "#000000",
+    menuButtonColor:      "#000000",
+    squareBorder:         "#000000",
+    lightSquareBorder:    "#000000",
+    disabledSquareBorder: "#000000",
+    colorO:               "#000000",
+    colorX:               "#000000" 
+}
+
 const standardPallete = {
     backgroundColor:      "#153448",
     textColor:            "#F7F7F7",
@@ -443,6 +87,139 @@ const forestNightPalette = {
     colorX:               "#D9853B"
 }
 
+const oceanPalette = {
+    backgroundColor:      "#142850",
+    textColor:            "#F9F9F9",
+    menuButtonColor:      "#00A8CC",
+    squareBorder:         "#27496D",
+    lightSquareBorder:    "#00A8CC",
+    disabledSquareBorder: "rgba(0, 168, 204, 0.1)",
+    colorO:               "#3AB795",
+    colorX:               "#F67280"
+};
+
+const lavenderPalette = {
+    backgroundColor:      "#6D597A",
+    textColor:            "#F6F6F6",
+    menuButtonColor:      "#B56576",
+    squareBorder:         "#355C7D",
+    lightSquareBorder:    "#B56576",
+    disabledSquareBorder: "rgba(181, 101, 118, 0.1)",
+    colorO:               "#9AD0EC",
+    colorX:               "#E56B6F"
+};
+
+const desertPalette = {
+    backgroundColor:      "#3E2723",
+    textColor:            "#FBEEC1",
+    menuButtonColor:      "#E07A5F",
+    squareBorder:         "#A0522D",
+    lightSquareBorder:    "#E07A5F",
+    disabledSquareBorder: "rgba(224, 122, 95, 0.1)",
+    colorO:               "#F2CC8F",
+    colorX:               "#81B29A"
+};
+
+const lemonPalette = {
+    backgroundColor:      "#FFFBEA",
+    textColor:            "#22223B",
+    menuButtonColor:      "#FFE066",
+    squareBorder:         "#FFD23F",
+    lightSquareBorder:    "#FFE066",
+    disabledSquareBorder: "rgba(255, 224, 102, 0.1)",
+    colorO:               "#FFB400",
+    colorX:               "#FF6363"
+};
+
+const peachPalette = {
+    backgroundColor:      "#FFF1E6",
+    textColor:            "#22223B",
+    menuButtonColor:      "#FFB4A2",
+    squareBorder:         "#F08080",
+    lightSquareBorder:    "#FFB4A2",
+    disabledSquareBorder: "rgba(255, 180, 162, 0.1)",
+    colorO:               "#F4978E",
+    colorX:               "#F9C784"
+};
+
+const duskGrey = {
+    backgroundColor:      "#2F3E46",
+    textColor:            "#CAD2C5",
+    menuButtonColor:      "#52796F",
+    squareBorder:         "#354F52",
+    lightSquareBorder:    "#52796F",
+    disabledSquareBorder: "rgba(82, 121, 111, 0.1)",
+    colorO:               "#84A98C",
+    colorX:               "#D90429"
+};
+
+const pineBrickPalette = {
+    backgroundColor:      "#2E2F27",
+    textColor:            "#D9D9D6",
+    menuButtonColor:      "#B73225",
+    squareBorder:         "#4A5A4F",
+    lightSquareBorder:    "#B73225",
+    disabledSquareBorder: "rgba(183, 50, 37, 0.1)",
+    colorO:               "#004E7C",
+    colorX:               "#A63A3A"
+};
+
+const infraredPalette = {
+    backgroundColor:      "#283747",
+    textColor:            "#F3F3F3",
+    menuButtonColor:      "#3C1874",
+    squareBorder:         "#932432",
+    lightSquareBorder:    "#3C1874",
+    disabledSquareBorder: "rgba(60, 24, 116, 0.1)",
+    colorO:               "#DE354C",
+    colorX:               "#932432"
+};
+
+const bluePalette = {
+    backgroundColor:      "#E0F7FA",
+    textColor:            "#142850",
+    menuButtonColor:      "#3C1874",
+    squareBorder:         "#27496D",
+    lightSquareBorder:    "#3C1874",
+    disabledSquareBorder: "rgba(60, 24, 116, 0.1)",
+    colorO:               "#52796F",
+    colorX:               "#FF2E63"
+};
+
+
+const honeyPalette = {
+    backgroundColor:      "#DCE1E3",
+    textColor:            "#5C5F58",
+    menuButtonColor:      "#FACF39",
+    squareBorder:         "#B17A50",
+    lightSquareBorder:    "#FACF39",
+    disabledSquareBorder: "rgba(250, 207, 57, 0.1)",
+    colorO:               "#B73225",
+    colorX:               "#004E7C"
+};
+
+const mintPalette = {
+    backgroundColor:      "#2E3D25",
+    textColor:            "#F4F1DE",
+    menuButtonColor:      "#A9CBB7",
+    squareBorder:         "#556B2F",
+    lightSquareBorder:    "#A9CBB7",
+    disabledSquareBorder: "rgba(169, 203, 183, 0.1)",
+    colorO:               "#8FBC8F",
+    colorX:               "#D2691E"
+};
+
+const violetPalette = {
+    backgroundColor:      "#3B1F2B",
+    textColor:            "#FFF8E7",
+    menuButtonColor:      "#9B59B6",
+    squareBorder:         "#6C3483",
+    lightSquareBorder:    "#9B59B6",
+    disabledSquareBorder: "rgba(155, 89, 182, 0.1)",
+    colorO:               "#8E44AD",
+    colorX:               "#E74C3C"
+};
+
 const blackPalette = {
     backgroundColor:      "#000000",
     textColor:            "#FFFFFF",
@@ -465,7 +242,7 @@ const whitePalette = {
     colorX:               "#D9534F"
 }
 
-const activeColorPallete = standardPallete;
+let activeColorPallete = "preloadPallete";
 const palettes = {
     standardPallete,
     earthPalette,
@@ -474,9 +251,21 @@ const palettes = {
     pastelPalette,
     retroArcadePalette,
     forestNightPalette,
+    oceanPalette,
+    lavenderPalette,
+    desertPalette,
+    lemonPalette,
+    peachPalette,
+    duskGrey,
+    pineBrickPalette,
+    infraredPalette,
+    bluePalette,
+    honeyPalette,
+    mintPalette,
+    violetPalette,
     blackPalette,
     whitePalette
-  };
+};
   
 const colorPalletes = [
     { id: "standardPallete", label: "Standard" },
@@ -486,49 +275,471 @@ const colorPalletes = [
     { id: "pastelPalette", label: "Pastel" },
     { id: "retroArcadePalette", label: "Retro Arcade" },
     { id: "forestNightPalette", label: "Forest Night" },
+    { id: "oceanPalette", label: "Ocean" },
+    { id: "lavenderPalette", label: "Lavender" },
+    { id: "desertPalette", label: "Desert" },
+    { id: "lemonPalette", label: "Lemon" },
+    { id: "peachPalette", label: "Peach" },
+    { id: "duskGrey", label: "Dusk Grey" },
+    { id: "pineBrickPalette", label: "Pine Brick" },
+    { id: "infraredPalette", label: "Infrared" },
+    { id: "bluePalette", label: "Blue" },
+    { id: "honeyPalette", label: "Honey" },
+    { id: "mintPalette", label: "Mint" },
+    { id: "violetPalette", label: "Violet" },
     { id: "blackPalette", label: "Black" },
     { id: "whitePalette", label: "White" }
   ];
 
-  const radioList = document.getElementById('theme-radio-list');
-  colorPalletes.forEach((palette, i) => {
-    const label = document.createElement('label');
-    label.className = 'theme-radio-label';
-  
-    const input = document.createElement('input');
-    input.type = 'radio';
-    input.name = 'theme-selection';
-    input.value = palette.id;
-    input.id = `theme-radio-${palette.id}`;
-    if (i === 0) input.checked = true;
-  
-    const span = document.createElement('span');
-    span.textContent = palette.label;
-  
-    label.appendChild(input);
-    label.appendChild(span);
-    radioList.appendChild(label);
-  });
+// GAME //
+let gameState = {
+    globalBoard: ["", "", "", "", "", "", "", "", ""],
+    subBoards: [
+        ["", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", "", ""]
+    ],
+    currentPlayer: "X",
+    activeSubBoard: null,
+    ended: false,
+};
 
-  const themeRadios = document.querySelectorAll('input[name="theme-selection"]');
+const winPatterns = [
+    [0, 1, 2],
+    [0, 3, 6],
+    [0, 4, 8],
+    [1, 4, 7],
+    [2, 5, 8],
+    [2, 4, 6],
+    [3, 4, 5],
+    [6, 7, 8]
+];
+let playingAgainstComputer = false;
+let computerToMove = false;
+let computerDifficulty = 2;
 
-  themeRadios.forEach(radio => {
-    radio.addEventListener('change', function() {
-      if (this.checked) {
-        document.documentElement.style.setProperty('--backgroundColor', palettes[this.value].backgroundColor);
-        document.documentElement.style.setProperty('--textColor', palettes[this.value].textColor);
-        document.documentElement.style.setProperty('--menuButtonColor', palettes[this.value].menuButtonColor);
-        document.documentElement.style.setProperty('--squareBorder', palettes[this.value].squareBorder);
-        document.documentElement.style.setProperty('--lightSquareBorder', palettes[this.value].lightSquareBorder);
-        document.documentElement.style.setProperty('--disabledSquareBorder', palettes[this.value].disabledSquareBorder);
-        document.documentElement.style.setProperty('--colorO', palettes[this.value].colorO);
-        document.documentElement.style.setProperty('--colorX', palettes[this.value].colorX);
-      }
+let squares = document.querySelectorAll(".square");
+let squareContainers = document.querySelectorAll(".square-container");
+
+// ON PAGE LOAD //
+
+resetGame();
+loadThemeButtons();
+loadSettings();
+
+// PWA //
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js")
+      .then(reg => console.log("Service Worker registered!", reg))
+      .catch(err => console.error("Service Worker registration failed:", err));
+  }
+
+// ------------ //
+
+
+function resetGame() {
+
+    document.getElementById("menu-container").style.display = "none";
+    document.getElementsByClassName("game-over")[0].style.display = "none";
+
+    gameState = {
+        globalBoard: ["", "", "", "", "", "", "", "", ""],
+        subBoards: [
+            ["", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", ""]
+        ],
+        currentPlayer: "X",
+        activeSubBoard: null,
+        ended: false,
+    };
+    gameState.currentPlayer = "X";
+    document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
+
+    squares.forEach((square) => {
+        square.classList.remove("square-disabled");
+        square.classList.remove("last-square-x");
+        square.classList.remove("last-square-o");
+        square.textContent = "";
+
+    })
+
+    squareContainers.forEach((container) => {
+        container.classList.remove("square-container-complete-x");
+        container.classList.remove("square-container-complete-o");
+        container.classList.remove("square-container-complete-d");
+        container.classList.remove("disabled");
+    })
+}
+
+function saveGame() {
+
+    return;
+
+}
+
+function loadGame() {
+
+    return;
+
+}
+
+squares.forEach((square, index) => {
+    square.addEventListener("click", function(event) {
+        const button = event.target;
+        const parentElement = event.target.parentElement;
+        const grandParentElement = event.target.parentElement.parentElement;
+        const buttonRelativeIndex = (index - (9 * Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement)));
+        const alsoButtonRelativeIndex = (Array.from(event.target.parentElement.children).indexOf(event.target));
+        const parentIndex = Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement);
+
+        handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement, computerToMove);
     });
-  });
+});
 
+var previousButton = document.createElement("button");
+function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement, computerMove) {
 
+    console.log("button: ", button, "buttonRelativeIndex: ", buttonRelativeIndex, "parentElement: ", parentElement, "parentIndex: ", parentIndex, "grandParentElement: ", grandParentElement);
+    gameState.activeSubBoard = buttonRelativeIndex;
+
+    if (gameState.currentPlayer == "O") {
+
+        button.textContent = "O";
+        gameState.subBoards[parentIndex][buttonRelativeIndex] = "O";
+
+        gameState.subBoards[parentIndex][buttonRelativeIndex] = "O";
+
+        gameState.currentPlayer = "X";
+        document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
+        document.documentElement.style.setProperty("--hoverColor", palettes[activeColorPallete].colorX);
+        button.classList.add("last-square-o");
+        previousButton.classList.remove("last-square-x");
+
+    } else {
+
+        button.textContent = "X";
+        gameState.subBoards[parentIndex][buttonRelativeIndex] = "X";
+
+        gameState.subBoards[parentIndex][buttonRelativeIndex] = "X";
+
+        gameState.currentPlayer = "O";
+        document.documentElement.style.setProperty("--hoverColor", palettes[activeColorPallete].colorO);
+        document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
+
+        button.classList.add("last-square-x");
+        previousButton.classList.remove("last-square-o");
+
+    }
+
+    previousButton = button;   
+
+    grandParentElementChildren = Array.from(grandParentElement.children);
+
+    checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren);
+
+    button.classList.add("square-disabled");
+
+    if (!gameState.ended) {
+    
+        grandParentElementChildren.forEach((child, index) => {
+
+            if (squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-x") || squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-o") || squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-d")) {
+
+                if (child.classList.contains("square-container-complete-x") || child.classList.contains("square-container-complete-o") || child.classList.contains("square-container-complete-d")) {
+
+                    child.classList.add("disabled");
+                    
+                } else {
+
+                    child.classList.remove("disabled");
+
+                }
+
+            } else {
+
+                if (index != buttonRelativeIndex) {
+
+                    child.classList.add("disabled");
+        
+                } else {
+        
+                    child.classList.remove("disabled");
+        
+                }
+
+            }
+
+        });
+
+        if (computerToMove == true) {
+            // document.getElementsByClassName("current-turn")[0].textContent = "WAIT...";
+            // grandParentElement.classList.add("wait-for-move");
+            // makeComputerMove();
+
+            makeRandomMove();
+
+            computerToMove = false;
+            return;
+
+        } else {
+            // grandParentElement.classList.remove("wait-for-move");
+            return;
+        }
+    }
+
+}
+
+function checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren) {
+
+    var isWon = false;
+
+    for (let pattern of winPatterns) {
+
+        let pos1 = Array.from(parentElement.children)[pattern[0]].innerText;
+        let pos2 = Array.from(parentElement.children)[pattern[1]].innerText;
+        let pos3 = Array.from(parentElement.children)[pattern[2]].innerText;
+
+        if (pos1 !== "" && pos2 !== "" && pos3 !== "" && pos1 === pos2 && pos2 === pos3) {
+
+            if (gameState.currentPlayer == "O") {
+                parentElement.classList.add("square-container-complete-x");
+            } else {
+                parentElement.classList.add("square-container-complete-o");
+            }
+            
+            // parentElement.replaceChildren();
+
+            // Array.from(parentElement.children)[pattern[0]].classList.add("square-complete");
+            // Array.from(parentElement.children)[pattern[1]].classList.add("square-complete");
+            // Array.from(parentElement.children)[pattern[2]].classList.add("square-complete");
+            gameState.globalBoard[parentIndex] = pos1;
+
+            gameState.globalBoard[parentIndex] = pos1;
+
+            // console.log(pos1);
+            isWon = true;
+            checkForWinner(grandParentElementChildren);
+            return;
+
+        }
+    }
+
+    if (!isWon) {
+        // console.log("NOT WON");
+        const allSquares = Array.from(parentElement.children).every((square) => square.innerText !== "");
+        if (allSquares) {
+            gameState.globalBoard[parentIndex] = "D";
+
+            gameState.globalBoard[parentIndex] = "D";                                                                                                  
+            parentElement.classList.add("square-container-complete-d");
+            // parentElement.replaceChildren();
+            // Array.from(parentElement.children).forEach(child => {
+            //     child.style.display = "none";
+            // })
+            console.log("check for global draw")
+            checkForWinner(grandParentElementChildren);
+        }
+    }
+    
+
+}
+
+function checkForWinner(grandParentElementChildren) {
+
+    var isWon = false;
+
+    for (let pattern of winPatterns) {
+
+        let pos1 = gameState.globalBoard[pattern[0]];
+        let pos2 = gameState.globalBoard[pattern[1]];
+        let pos3 = gameState.globalBoard[pattern[2]];
+
+        if (pos1 !== "" && pos2 !== "" && pos3 !== "" && pos1 === pos2 && pos2 === pos3) {
+
+            isWon = true;
+            grandParentElementChildren.forEach((child, index) => {
+                
+                child.classList.add("disabled");
+
+            });
+            if (gameState.currentPlayer == "O") {
+                alert("X WON");
+            } else {
+                alert("O WON");
+            }
+            document.getElementsByClassName("current-turn")[0].textContent = "";
+            document.getElementsByClassName("game-over")[0].style.display = "block";
+            gameState.ended = true;
+            return;
+
+        } 
+
+    }
+
+    if (!isWon) {
+        console.log("not won")
+        if (gameState.globalBoard.every(cell => cell !== "")) {
+            alert("DRAW");
+            document.getElementsByClassName("current-turn")[0].textContent = "";
+            document.getElementsByClassName("game-over")[0].style.display = "block";
+        }
+    } else {
+        console.log("show new game");
+        document.getElementsByClassName("current-turn")[0].textContent = "";
+        document.getElementsByClassName("game-over")[0].style.display = "block";
+    }
+
+}
   
+// MENU //
+let menu = document.getElementById("menu-container");
+let menuShown = false;
+
+function showMenu() {
+    menu.style.display = "block";
+    menuShown = true;
+}
+
+function hideMenu(event) {
+    if (event.target == menu) {
+        menu.style.display = "none";
+        menuShown = false;
+    }
+        
+    if (event.target.matches(".button-container") || event.target.matches(".menu-item-container")) {
+        document.getElementById("settings-content").style.display = "none";
+        document.getElementById("new-game").style.display = "block";
+        document.getElementById("reset-game").style.display = "block";
+        document.getElementById("settings-button").textContent = "SETTINGS";
+        settingsShown = false;
+    }
+    
+}
+
+window.onclick = function(event) {
+    if (menuShown) {
+        hideMenu(event);
+    }
+}
+
+function loadSettings() {
+
+    const toggle = document.getElementById("contrast-toggle");
+    const savedContrastSetting = localStorage.getItem("highContrast");
+    if (savedContrastSetting) {
+      document.documentElement.style.colorScheme = savedContrastSetting;
+      toggle.checked = savedContrastSetting === "dark";
+    } else {
+        localStorage.setItem("highContrast", "dark");
+    }
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+        colorPalletes.forEach((palette) => {
+        if (palette.id === savedTheme) {
+            activeColorPallete = savedTheme;
+            document.getElementById(`theme-radio-${savedTheme}`).checked = true;
+            loadTheme(activeColorPallete);
+        }  
+        });
+    } else {
+        activeColorPallete = "standardPallete";
+        loadTheme(activeColorPallete);
+    }
+
+}
+
+let settingsShown = false;
+function showSettings() {
+    if (settingsShown == false) {
+        document.getElementById("settings-content").style.display = "block";
+        document.getElementById("new-game").style.display = "none";
+        document.getElementById("reset-game").style.display = "none";
+        document.getElementById("settings-button").textContent = "CLOSE SETTINGS";
+        settingsShown = true;
+    } else {
+        document.getElementById("settings-content").style.display = "none";
+        document.getElementById("new-game").style.display = "block";
+        document.getElementById("reset-game").style.display = "block";
+        document.getElementById("settings-button").textContent = "SETTINGS";
+        settingsShown = false;
+    }
+}
+
+
+function toggleContrast() {
+    const toggle = document.getElementById("contrast-toggle");
+    const contrast = toggle.checked ? "dark" : "light";
+    document.documentElement.style.colorScheme = contrast;
+    localStorage.setItem("highContrast", contrast);
+}
+
+function loadThemeButtons() {
+
+    const radioList = document.getElementById("theme-radio-list");
+    
+    colorPalletes.forEach((palette, i) => {
+    
+        const label = document.createElement("label");
+        label.className = "theme-radio-label";
+
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = "theme-selection";
+        input.value = palette.id;
+        input.id = `theme-radio-${palette.id}`;
+        if (i === 0) input.checked = true;
+
+        const span = document.createElement("span");
+        span.textContent = palette.label;
+
+        label.appendChild(input);
+        label.appendChild(span);
+        radioList.appendChild(label);
+    });
+
+    const themeRadios = document.querySelectorAll("input[name='theme-selection']");
+
+    themeRadios.forEach(radio => {
+        radio.addEventListener("change", function() {
+            if (this.checked) {
+                activeColorPallete = this.value;
+                localStorage.setItem("theme", activeColorPallete); 
+                loadTheme(activeColorPallete);
+            }
+        });
+    });
+}
+
+function loadTheme(selectedTheme) {
+    document.documentElement.style.setProperty("--backgroundColor", palettes[selectedTheme].backgroundColor);
+    document.documentElement.style.setProperty("--textColor", palettes[selectedTheme].textColor);
+    document.documentElement.style.setProperty("--menuButtonColor", palettes[selectedTheme].menuButtonColor);
+    document.documentElement.style.setProperty("--squareBorder", palettes[selectedTheme].squareBorder);
+    document.documentElement.style.setProperty("--lightSquareBorder", palettes[selectedTheme].lightSquareBorder);
+    document.documentElement.style.setProperty("--disabledSquareBorder", palettes[selectedTheme].disabledSquareBorder);
+    document.documentElement.style.setProperty("--colorO", palettes[selectedTheme].colorO);
+    document.documentElement.style.setProperty("--colorX", palettes[selectedTheme].colorX);
+    if (gameState.currentPlayer === "X") {
+        document.documentElement.style.setProperty("--hoverColor", palettes[selectedTheme].colorX);
+    } else {
+        document.documentElement.style.setProperty("--hoverColor", palettes[selectedTheme].colorO);
+    }
+    
+}  
+
 /// RANDOM MOVE ///
 function makeRandomMove() {
 
@@ -679,7 +890,7 @@ function simulate(state) {
         // console.log("APPLY MOVE SIMULATE: ", randomMove);
         currentState = applyMove(currentState, randomMove);
     }
-    return checkWinGlobal(currentState.globalBoard); // Returns 'X', 'O', 'D' or null for still going.
+    return checkWinGlobal(currentState.globalBoard); // Returns "X", "O", "D" or null for still going.
 }
 
 function isGameOver(state) {

@@ -1,23 +1,15 @@
 :root {
     color-scheme: light dark;
-    --backgroundColor: #153448;
-    --textColor: #F7F7F7;
-    --menuButtonColor: #C9E4F7;
-    --squareBorder: #3c5b6f;
-    --lightSquareBorder: #C9E4F7;
-    --disabledSquareBorder: rgba(201, 228, 247, 0.1);
-    --colorO: #3498db;
-    --colorX: #ff6666;
+    --backgroundColor: #000000;
+    --textColor: #000000;
+    --menuButtonColor: #000000;
+    --squareBorder: #000000;
+    --lightSquareBorder: #000000;
+    --disabledSquareBorder: #000000;
+    --colorO: #000000;
+    --colorX: #000000; 
+}
 
-    /* OLD COLORS */
-    --darkblue: #153448;
-    --opaquedarkblue: rgba(61, 92, 113, 0.3); /* rgba(61, 92, 113, 0.3) */
-    --blue: #3c5b6f;
-    --opaqueblue: rgba(201, 228, 247, 0.1); /* rgba(201, 228, 247, 0.1) */
-    --darkbrown: #948979;
-    --brown: #DFD0B8; 
-    --hoverColor: #ff6666;
-  }
 html, body {
     height: 100%;
     margin: 0;
@@ -27,7 +19,8 @@ html, body {
     font-family: 'Open Sans', sans-serif;
     font-weight: 800;
     color: white;
-  }
+}
+
 .game-header {
     text-align: center;
     margin-bottom: 2vmin;
@@ -38,6 +31,7 @@ html, body {
     margin: 0;
     padding: 2vmin 0;
 }
+
 .current-turn {
     text-align: center;
     font-size: 3vmin;
@@ -62,6 +56,7 @@ html, body {
     padding: 2vmin;
     box-sizing: border-box;
 }
+
 .game-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -70,6 +65,7 @@ html, body {
     /* height: calc(100vmin - 4vmin);  */
     aspect-ratio: 1 / 1;
 }
+
 .wait-for-move {
     pointer-events: none;
 }
@@ -83,7 +79,6 @@ html, body {
     /* aspect-ratio: 1 / 1; */
 }
 
-
 .square-container-complete-o {
     height: 80%;
     width: 80%;
@@ -96,20 +91,10 @@ html, body {
     box-sizing: border-box;
     margin: 0;
 }
-
 .square-container-complete-o > Button {
     visibility: hidden;
 }
 
-/* .square-container-complete-o::after {
-    background: green;
-    content: "";
-    position: absolute;
-    box-sizing: border-box;
-    height: 100%;
-    width: 100%;
-    transform: rotate(90deg);
-} */
 .square-container-complete-x {
     background: var(--colorX);
     height: 100%;
@@ -118,11 +103,9 @@ html, body {
     position: relative;
     transform: rotate(-45deg);
 }
-
 .square-container-complete-x > Button {
     visibility: hidden;
 }
-
 .square-container-complete-x::after {
     background: var(--colorX);
     content: "";
@@ -136,11 +119,9 @@ html, body {
 .square-container-complete-d {
     position: relative;
 }
-
 .square-container-complete-d > Button {
     visibility: hidden;
 }
-
 .square-container-complete-d::after {
     background: var(--textColor);
     content: "";
@@ -164,6 +145,7 @@ html, body {
 .disabled > .last-square-o {
     border: 0.3vmin solid var(--colorO) !important;
 }
+
 .square {
     width: 100%;
     height: 100%;
@@ -193,14 +175,6 @@ html, body {
 .square-disabled.last-square-o {
     border: 0.3vmin solid var(--colorO) !important;
 }
-
-
-/* unused */
-.square-complete {
-    background-color: #ff0000;
-}
-/* unused */
-
 
 .button-container {
     text-align: center;
@@ -241,12 +215,12 @@ html, body {
     color: var(--textColor);
     margin: 5px;
 }
-.theme-toggle {
+.contrast-toggle {
     position: absolute;
     opacity: 0;
     cursor: pointer;
 }
-.theme-toggle-label {
+.contrast-toggle-label {
     color: var(--textColor);
     box-sizing: border-box;
     display: block;
@@ -254,7 +228,7 @@ html, body {
     height: 100%;
     cursor: pointer;
 }
-.theme-toggle-label > span {
+.contrast-toggle-label > span {
     pointer-events: none;
 }
 
