@@ -342,6 +342,9 @@ window.onclick = function(event) {
         
     if (event.target.matches(".button-container") || event.target.matches(".menu-item-container")) {
         document.getElementById("settings-content").style.display = "none";
+        document.getElementById("new-game").style.display = "block";
+        document.getElementById("reset-game").style.display = "block";
+        document.getElementById("settings-button").textContent = "SETTINGS";
         settingsShown = false;
     }
 } 
@@ -374,7 +377,7 @@ const standardPallete = {
     colorX:               "#ff6666"
 };
 
-const earthyCalmPalette = {
+const earthPalette = {
     backgroundColor:      "#2E3D25",
     textColor:            "#F4F1DE",
     menuButtonColor:      "#A9CBB7",
@@ -465,7 +468,7 @@ const whitePalette = {
 const activeColorPallete = standardPallete;
 const palettes = {
     standardPallete,
-    earthyCalmPalette,
+    earthPalette,
     neonPalette,
     sunsetPalette,
     pastelPalette,
@@ -477,7 +480,7 @@ const palettes = {
   
 const colorPalletes = [
     { id: "standardPallete", label: "Standard" },
-    { id: "earthyCalmPalette", label: "Earthy Calm" },
+    { id: "earthPalette", label: "Earthy Calm" },
     { id: "neonPalette", label: "Neon" },
     { id: "sunsetPalette", label: "Sunset" },
     { id: "pastelPalette", label: "Pastel" },
