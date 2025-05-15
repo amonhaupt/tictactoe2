@@ -269,7 +269,7 @@ const palettes = {
   
 const colorPalletes = [
     { id: "standardPallete", label: "Standard" },
-    { id: "earthPalette", label: "Earthy Calm" },
+    { id: "earthPalette", label: "Earth" },
     { id: "neonPalette", label: "Neon" },
     { id: "sunsetPalette", label: "Sunset" },
     { id: "pastelPalette", label: "Pastel" },
@@ -401,8 +401,7 @@ squares.forEach((square, index) => {
         const button = event.target;
         const parentElement = event.target.parentElement;
         const grandParentElement = event.target.parentElement.parentElement;
-        const buttonRelativeIndex = (index - (9 * Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement)));
-        const alsoButtonRelativeIndex = (Array.from(event.target.parentElement.children).indexOf(event.target));
+        const buttonRelativeIndex = (Array.from(event.target.parentElement.children).indexOf(event.target));
         const parentIndex = Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement);
 
         handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement, computerToMove);
@@ -412,48 +411,57 @@ squares.forEach((square, index) => {
 var previousButton = document.createElement("button");
 function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement, computerMove) {
 
-    console.log("button: ", button, "buttonRelativeIndex: ", buttonRelativeIndex, "parentElement: ", parentElement, "parentIndex: ", parentIndex, "grandParentElement: ", grandParentElement);
+    // console.log("button: ", button, "buttonRelativeIndex: ", buttonRelativeIndex, "parentElement: ", parentElement, "parentIndex: ", parentIndex, "grandParentElement: ", grandParentElement);
     gameState.activeSubBoard = buttonRelativeIndex;
 
-    if (gameState.currentPlayer == "O") {
-
-        button.textContent = "O";
-        gameState.subBoards[parentIndex][buttonRelativeIndex] = "O";
-
-        gameState.subBoards[parentIndex][buttonRelativeIndex] = "O";
-
-        gameState.currentPlayer = "X";
-        document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
-        document.documentElement.style.setProperty("--hoverColor", palettes[activeColorPallete].colorX);
-        button.classList.add("last-square-o");
-        previousButton.classList.remove("last-square-x");
-
-    } else {
-
-        button.textContent = "X";
-        gameState.subBoards[parentIndex][buttonRelativeIndex] = "X";
-
-        gameState.subBoards[parentIndex][buttonRelativeIndex] = "X";
-
-        gameState.currentPlayer = "O";
-        document.documentElement.style.setProperty("--hoverColor", palettes[activeColorPallete].colorO);
-        document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
-
-        button.classList.add("last-square-x");
-        previousButton.classList.remove("last-square-o");
-
-    }
+    updateGameBoard(button, buttonRelativeIndex, parentIndex);
 
     previousButton = button;   
 
-    grandParentElementChildren = Array.from(grandParentElement.children);
-
-    checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren);
-
-    button.classList.add("square-disabled");
+    // checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren);
 
     if (!gameState.ended) {
+
+        if (computerToMove == true) {
+            // document.getElementsByClassName("current-turn")[0].textContent = "WAIT...";
+            // grandParentElement.classList.add("wait-for-move");
+            // makeComputerMove();
+
+            makeRandomMove();
+
+            computerToMove = false;
+            return;
+
+        } else {
+            // grandParentElement.classList.remove("wait-for-move");
+            return;
+        }
+    }
+
+}
+
+/// NEW ///
+
+function updateGameBoard(button, buttonRelativeIndex, parentIndex) {
+
+    button.textContent = gameState.currentPlayer;
+    gameState.subBoards[parentIndex][buttonRelativeIndex] = gameState.currentPlayer;
+    button.classList.add(`last-square-${gameState.currentPlayer.toLowerCase()}`);
+
+    // switches currentPlayer
+    gameState.currentPlayer = gameState.currentPlayer === "X" ? "O" : "X";
+
+    document.documentElement.style.setProperty("--hoverColor", palettes[activeColorPallete][gameState.currentPlayer === "X" ? "colorX" : "colorO"]);
+    document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
+    previousButton.classList.remove(`last-square-${gameState.currentPlayer.toLowerCase()}`);
+
+    button.classList.add("square-disabled");
     
+    const grandParentElementChildren = Array.from(document.getElementsByClassName("game-container")[0].children);
+    checkForIndividualWinner(button.parentElement, parentIndex, grandParentElementChildren);
+
+    if (!gameState.ended) {
+        
         grandParentElementChildren.forEach((child, index) => {
 
             if (squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-x") || squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-o") || squareContainers[buttonRelativeIndex].classList.contains("square-container-complete-d")) {
@@ -483,24 +491,12 @@ function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, gr
             }
 
         });
-
-        if (computerToMove == true) {
-            // document.getElementsByClassName("current-turn")[0].textContent = "WAIT...";
-            // grandParentElement.classList.add("wait-for-move");
-            // makeComputerMove();
-
-            makeRandomMove();
-
-            computerToMove = false;
-            return;
-
-        } else {
-            // grandParentElement.classList.remove("wait-for-move");
-            return;
-        }
     }
 
 }
+
+/// --- ///
+
 
 function checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren) {
 
@@ -590,7 +586,6 @@ function checkForWinner(grandParentElementChildren) {
     }
 
     if (!isWon) {
-        console.log("not won")
         if (gameState.globalBoard.every(cell => cell !== "")) {
             alert("DRAW");
             document.getElementsByClassName("current-turn")[0].textContent = "";
@@ -604,35 +599,6 @@ function checkForWinner(grandParentElementChildren) {
 
 }
 
-/// NEW CHECK WIN FUNCTION ///
-
-    // function checkWin(board, player, winPatterns) {
-    //     return winPatterns.some(pattern =>
-    //         pattern.every(index => board[index] === player)
-    //     );
-    // }
-
-    // // Check sub-board win
-    // if (checkWin(subBoard, player, winPatterns)) {
-    //     gameState.globalBoard[subBoardIndex] = player;
-    // }
-
-    // // Check global win
-    // if (checkWin(gameState.globalBoard, player, winPatterns)) {
-    //     gameState.ended = true;
-    //     return `${player} wins the game!`;
-    // }
-
-    // // Optionally: Check for draw
-    // if (gameState.globalBoard.every(cell => cell !== "")) {
-    //     gameState.ended = true;
-    //     return "Draw!";
-    // }
-
-/// ---------------------- ///
-
-
-  
 // MENU //
 let menu = document.getElementById("menu-container");
 let menuShown = false;
