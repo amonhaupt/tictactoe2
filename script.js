@@ -603,6 +603,35 @@ function checkForWinner(grandParentElementChildren) {
     }
 
 }
+
+/// NEW CHECK WIN FUNCTION ///
+
+    function checkWin(board, player, winPatterns) {
+        return winPatterns.some(pattern =>
+            pattern.every(index => board[index] === player)
+        );
+    }
+
+    // Check sub-board win
+    if (checkWin(subBoard, player, winPatterns)) {
+        gameState.globalBoard[subBoardIndex] = player;
+    }
+
+    // Check global win
+    if (checkWin(gameState.globalBoard, player, winPatterns)) {
+        gameState.ended = true;
+        return `${player} wins the game!`;
+    }
+
+    // Optionally: Check for draw
+    if (gameState.globalBoard.every(cell => cell !== "")) {
+        gameState.ended = true;
+        return "Draw!";
+    }
+
+/// ---------------------- ///
+
+
   
 // MENU //
 let menu = document.getElementById("menu-container");
