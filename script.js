@@ -307,6 +307,7 @@ let gameState = {
     ],
     currentPlayer: "X",
     activeSubBoard: null,
+    lastMove: [],
     ended: false,
 };
 
@@ -324,14 +325,16 @@ let playingAgainstComputer = false;
 let computerToMove = false;
 let computerDifficulty = 2;
 
+
+let previousButton = document.createElement("button");
 let squares = document.querySelectorAll(".square");
 let squareContainers = document.querySelectorAll(".square-container");
 
 // ON PAGE LOAD //
 
-resetGame();
 loadThemeButtons();
 loadSettings();
+loadGame();
 
 // PWA //
 if ("serviceWorker" in navigator) {
@@ -363,6 +366,11 @@ function resetGame() {
         ],
         currentPlayer: "X",
         activeSubBoard: null,
+        lastMove: {
+            subBoard: null,
+            cell: null,
+            player: null
+        },
         ended: false,
     };
     gameState.currentPlayer = "X";
@@ -382,17 +390,8 @@ function resetGame() {
         container.classList.remove("square-container-complete-d");
         container.classList.remove("disabled");
     })
-}
 
-function saveGame() {
-
-    return;
-
-}
-
-function loadGame() {
-
-    return;
+    saveGame();
 
 }
 
@@ -408,15 +407,64 @@ squares.forEach((square, index) => {
     });
 });
 
-var previousButton = document.createElement("button");
+function saveGame() {
+
+    localStorage.setItem("gameState", JSON.stringify(gameState));
+
+}
+
+function loadGame() {
+
+    gameState = JSON.parse(localStorage.getItem("gameState"));
+
+    if (gameState.activeSubBoard != null) {
+
+        Array.from(document.getElementsByClassName("square-container")).forEach((container, index) => {
+            if (index != gameState.activeSubBoard) {
+                container.classList.add("disabled");
+            }
+        });
+
+        gameState.globalBoard.forEach((square, index) => {
+            if (square != "") {
+                document.getElementById(`square-container-${index}`).classList.add(`square-container-complete-${square.toLowerCase()}`, "disabled");
+            }
+        });
+
+        gameState.subBoards.forEach((subBoard, index) => {
+            let squares = document.getElementById(`square-container-${index}`).children;
+            subBoard.forEach((square, index) => {
+                squares[index].innerText = square;
+                if (square != "") {
+                    squares[index].classList.add("square-disabled");
+                }
+            });
+        });
+
+        // let lastSquare = document.getElementById(`square-container-${gameState.lastMove.subBoard}`).children[gameState.lastMove.cell];
+        // lastSquare.classList.add(`last-square-${gameState.currentPlayer.toLowerCase()}`);
+        // previousButton = lastSquare;
+    }  
+
+}
+
 function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement, computerMove) {
+
+    Object.assign(gameState.lastMove, {
+        subBoard: parentIndex,
+        cell: buttonRelativeIndex,
+        player: gameState.currentPlayer
+    });
 
     // console.log("button: ", button, "buttonRelativeIndex: ", buttonRelativeIndex, "parentElement: ", parentElement, "parentIndex: ", parentIndex, "grandParentElement: ", grandParentElement);
     gameState.activeSubBoard = buttonRelativeIndex;
 
     updateGameBoard(button, buttonRelativeIndex, parentIndex);
 
-    previousButton = button;   
+    saveGame();
+
+    previousButton = button;
+    
 
     // checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren);
 
@@ -459,6 +507,8 @@ function updateGameBoard(button, buttonRelativeIndex, parentIndex) {
     
     const grandParentElementChildren = Array.from(document.getElementsByClassName("game-container")[0].children);
     checkForIndividualWinner(button.parentElement, parentIndex, grandParentElementChildren);
+
+    // getWin(gameState.subBoard[parentIndex]);
 
     if (!gameState.ended) {
         
@@ -598,6 +648,22 @@ function checkForWinner(grandParentElementChildren) {
     }
 
 }
+
+/// NEW CHECK WIN ///
+
+function getWin(board) {
+    for (const line of winPatterns) {
+        const [a, b, c] = line;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            return board[a];
+        }
+    }
+    if (board.every(cell => cell !== "")) {
+        return "D";
+    }
+    return null;
+}
+
 
 // MENU //
 let menu = document.getElementById("menu-container");
