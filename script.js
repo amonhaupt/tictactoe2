@@ -415,37 +415,39 @@ function saveGame() {
 
 function loadGame() {
 
-    gameState = JSON.parse(localStorage.getItem("gameState"));
+    if (localStorage.getItem("gameState")) {
 
-    if (gameState.activeSubBoard != null) {
+        gameState = JSON.parse(localStorage.getItem("gameState"));
+        
+        if (gameState.activeSubBoard != null) {
 
-        Array.from(document.getElementsByClassName("square-container")).forEach((container, index) => {
-            if (index != gameState.activeSubBoard) {
-                container.classList.add("disabled");
-            }
-        });
-
-        gameState.globalBoard.forEach((square, index) => {
-            if (square != "") {
-                document.getElementById(`square-container-${index}`).classList.add(`square-container-complete-${square.toLowerCase()}`, "disabled");
-            }
-        });
-
-        gameState.subBoards.forEach((subBoard, index) => {
-            let squares = document.getElementById(`square-container-${index}`).children;
-            subBoard.forEach((square, index) => {
-                squares[index].innerText = square;
-                if (square != "") {
-                    squares[index].classList.add("square-disabled");
+            Array.from(document.getElementsByClassName("square-container")).forEach((container, index) => {
+                if (index != gameState.activeSubBoard) {
+                    container.classList.add("disabled");
                 }
             });
-        });
 
-        // let lastSquare = document.getElementById(`square-container-${gameState.lastMove.subBoard}`).children[gameState.lastMove.cell];
-        // lastSquare.classList.add(`last-square-${gameState.currentPlayer.toLowerCase()}`);
-        // previousButton = lastSquare;
-    }  
+            gameState.globalBoard.forEach((square, index) => {
+                if (square != "") {
+                    document.getElementById(`square-container-${index}`).classList.add(`square-container-complete-${square.toLowerCase()}`, "disabled");
+                }
+            });
 
+            gameState.subBoards.forEach((subBoard, index) => {
+                let squares = document.getElementById(`square-container-${index}`).children;
+                subBoard.forEach((square, index) => {
+                    squares[index].innerText = square;
+                    if (square != "") {
+                        squares[index].classList.add("square-disabled");
+                    }
+                });
+            });
+
+            // let lastSquare = document.getElementById(`square-container-${gameState.lastMove.subBoard}`).children[gameState.lastMove.cell];
+            // lastSquare.classList.add(`last-square-${gameState.currentPlayer.toLowerCase()}`);
+            // previousButton = lastSquare;
+        }  
+    }
 }
 
 function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement, computerMove) {
