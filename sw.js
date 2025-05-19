@@ -1,4 +1,4 @@
-const cacheName = 'ttt2-cache-v1.1.3';
+const cacheName = 'ttt2-cache-v1.1.4';
 const appShellFiles = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const appShellFiles = [
 // Install event: cache app shell
 self.addEventListener('install', (e) => {
   console.log('[Service Worker] Install');
+  self.skipWaiting();
   e.waitUntil(
     caches.open(cacheName).then((cache) => {
       console.log('[Service Worker] Caching app shell');
@@ -28,6 +29,8 @@ self.addEventListener('activate', (e) => {
           }
         })
       );
+    }).then(() => {
+      return self.clients.claim();
     })
   );
 });
