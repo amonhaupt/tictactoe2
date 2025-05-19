@@ -1,4 +1,4 @@
-const cacheName = 'ttt2-cache-v1.1.4';
+const cacheName = 'ttt2-cache-v1.1.5';
 const appShellFiles = [
   './',
   './index.html',

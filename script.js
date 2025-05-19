@@ -306,8 +306,14 @@ let gameState = {
         ["", "", "", "", "", "", "", "", ""]
     ],
     currentPlayer: "X",
+    playingAgainstComputer: false,
+    computerToMove: false,
     activeSubBoard: null,
-    lastMove: [],
+    lastMove: {
+        subBoard: null,
+        cell: null,
+        player: null
+    },
     ended: false,
 };
 
@@ -321,8 +327,6 @@ const winPatterns = [
     [3, 4, 5],
     [6, 7, 8]
 ];
-let playingAgainstComputer = false;
-let computerToMove = false;
 let computerDifficulty = 2;
 
 
@@ -365,6 +369,8 @@ function resetGame() {
             ["", "", "", "", "", "", "", "", ""]
         ],
         currentPlayer: "X",
+        playingAgainstComputer: false,
+        computerToMove: false,
         activeSubBoard: null,
         lastMove: {
             subBoard: null,
@@ -403,7 +409,7 @@ squares.forEach((square, index) => {
         const buttonRelativeIndex = (Array.from(event.target.parentElement.children).indexOf(event.target));
         const parentIndex = Array.from(event.target.parentElement.parentElement.children).indexOf(event.target.parentElement);
 
-        handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement, computerToMove);
+        handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement);
     });
 });
 
@@ -419,13 +425,26 @@ function loadGame() {
 
         gameState = JSON.parse(localStorage.getItem("gameState"));
         
+        if (gameState.ended === true) {
+            resetGame();
+            return;
+        }
+
         if (gameState.activeSubBoard != null) {
 
-            Array.from(document.getElementsByClassName("square-container")).forEach((container, index) => {
-                if (index != gameState.activeSubBoard) {
-                    container.classList.add("disabled");
-                }
-            });
+            if (gameState.globalBoard[gameState.activeSubBoard] === "") {
+                Array.from(document.getElementsByClassName("square-container")).forEach((container, index) => {
+                    if (index != gameState.activeSubBoard) {
+                        container.classList.add("disabled");
+                    }
+                });
+            } else {
+                Array.from(document.getElementsByClassName("square-container")).forEach((container, index) => {
+                    if (gameState.globalBoard[index] != "") {
+                        container.classList.add("disabled");
+                    }
+                });
+            }            
 
             gameState.globalBoard.forEach((square, index) => {
                 if (square != "") {
@@ -450,7 +469,7 @@ function loadGame() {
     }
 }
 
-function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement, computerMove) {
+function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement) {
 
     Object.assign(gameState.lastMove, {
         subBoard: parentIndex,
@@ -470,24 +489,22 @@ function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, gr
 
     // checkForIndividualWinner(parentElement, parentIndex, grandParentElementChildren);
 
-    if (!gameState.ended) {
+    if (gameState.ended) {
+        return;
+    }
+    if (gameState.playingAgainstComputer === true) {
+        gameState.computerToMove = (gameState.computerToMove === false) ? true : false;
 
-        if (computerToMove == true) {
-            // document.getElementsByClassName("current-turn")[0].textContent = "WAIT...";
-            // grandParentElement.classList.add("wait-for-move");
-            // makeComputerMove();
-
-            makeRandomMove();
-
-            computerToMove = false;
-            return;
-
-        } else {
-            // grandParentElement.classList.remove("wait-for-move");
-            return;
+        // If it's the computer's turn, make the computer move
+        if (gameState.computerToMove === true) {
+            // Optionally, you can add a delay for realism
+            setTimeout(() => {
+                makeRandomMove(); // or makeMCTSMove();
+                // After the computer moves, switch back to human
+                gameState.computerToMove = false;
+            }, 300); 
         }
     }
-
 }
 
 /// NEW ///
@@ -806,8 +823,6 @@ function loadTheme(selectedTheme) {
 /// RANDOM MOVE ///
 function makeRandomMove() {
 
-    computerToMove = true;
-
     const moves = getValidMoves(gameState);
     let randomMove = moves[Math.floor(Math.random() * moves.length)];
     let buttonIndex;
@@ -866,16 +881,6 @@ function checkWin(board) {
             return board[a];
         }
     }
-    return null;
-}
-
-function checkWinGlobal(board) {
-    for (const line of winPatterns) {
-        const [a, b, c] = line;
-        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-            return board[a];
-        }
-    }
     if (board.every(cell => cell !== "")) {
         return "D";
     }
@@ -884,9 +889,7 @@ function checkWinGlobal(board) {
 
 // GET VALID MOVES END //
 
-
 // NODE //
-
 class Node {
     constructor(state, parent = null, move = null) {
         this.state = state; // The game state at this node
@@ -904,36 +907,29 @@ class Node {
 }
 
 // SELECT //
-
 function select(node) {
     while (node.children.length > 0) {
         node = node.children.reduce((bestChild, child) => {
-            const ucb1 = (child.wins / (child.visits || 1)) + 
+            const ucb1 = (child.wins / (child.visits || 1)) +
                          Math.sqrt(2 * Math.log(node.visits + 1) / (child.visits || 1));
-            return ucb1 > bestChild.ucb1 ? { node: child, ucb1 } : bestChild;
-        }, { node: null, ucb1: -Infinity }).node;
+            const bestUcb1 = (bestChild.wins / (bestChild.visits || 1)) +
+                             Math.sqrt(2 * Math.log(node.visits + 1) / (bestChild.visits || 1));
+            return ucb1 > bestUcb1 ? child : bestChild;
+        }, node.children[0]);
     }
     return node;
 }
 
 // EXPAND //
-
 function expand(node) {
 
     if (node.isFullyExpanded()) {
         return null; // No expansion needed if all moves are already explored
     }
-
     const validMoves = getValidMoves(node.state);
-
-    // console.log(validMoves);
-
     const triedMoves = node.children.map(child => child.move);
-
     for (const move of validMoves) {
-        // console.log(node.state.currentPlayer)
         if (!triedMoves.some(m => m.subBoard === move.subBoard && m.cell === move.cell)) {
-            // console.log("APPLY MOVE EXPAND: ", move, node.state);
             const newState = applyMove(node.state, move);
             const childNode = new Node(newState, node, move);
             node.children.push(childNode);
@@ -943,54 +939,39 @@ function expand(node) {
 }
 
 // SIMULATE //
-
 function simulate(state) {
-    // let currentState = JSON.parse(JSON.stringify(state));
     let currentState = state;
     while (!isGameOver(currentState)) {
         const moves = getValidMoves(currentState);
         const randomMove = moves[Math.floor(Math.random() * moves.length)];
-        // console.log("APPLY MOVE SIMULATE: ", randomMove);
         currentState = applyMove(currentState, randomMove);
     }
-    return checkWinGlobal(currentState.globalBoard); // Returns "X", "O", "D" or null for still going.
+    return checkWin(currentState.globalBoard); // Returns "X", "O", "D" or null for still going.
 }
 
 function isGameOver(state) {
-    return checkWinGlobal(state.globalBoard) != null
+    return checkWin(state.globalBoard) != null
 }
-
-
-// IF win is found in a subBoard we need to update the globalBoard aswell!!!
 
 function applyMove(state, move) {
-
-    // console.log(move);
-    // console.log(state, move)
-    let newState = state;
+    let newState = JSON.parse(JSON.stringify(state));
     newState.activeSubBoard = move.subBoard;
     newState.subBoards[move.subBoard][move.cell] = state.currentPlayer;
-    // console.log(newState)
-    let winState = checkWin(state.subBoards[move.subBoard]);
+    let winState = checkWin(newState.subBoards[move.subBoard]);
     if (winState != null) {
-        state.globalBoard[move.subBoard] = winState;
+        newState.globalBoard[move.subBoard] = winState;
     }
-    state.currentPlayer = state.currentPlayer === "X" ? "O" : "X";
+    newState.currentPlayer = state.currentPlayer === "X" ? "O" : "X";
     return newState;
-
 }
 
+
+
 // BACK PROGAGATE //
-
 function backpropagate(node, result, lookingFor) {
-    // console.log(result, node.state.currentPlayer)
-
-    // node.state.currentPlayer = node.state.currentPlayer === "X" ? "O" : "X";
 
     while (node !== null) {
         node.visits++;
-        // console.log("NODE STATE CURRENTPLAYER: ", node.state.currentPlayer, " RESULT: ", result, " WINs", node.wins);
-        // if (node.state.currentPlayer === result) {
         if (lookingFor === result) {
             node.wins++;
         }
@@ -999,7 +980,6 @@ function backpropagate(node, result, lookingFor) {
 }
 
 // MCTS //
-
 function monteCarloTreeSearch(rootState, iterations) {
 
     const searchState = JSON.parse(JSON.stringify(rootState));
@@ -1019,4 +999,25 @@ function monteCarloTreeSearch(rootState, iterations) {
     console.log("FINAL STATE: ", rootNode, " looked for: ", lookingFor);
     return rootNode.children.reduce((bestChild, child) => 
         child.visits > bestChild.visits ? child : bestChild).move;
+}
+
+function makeMCTSMove() {
+
+    computerToMove = true;
+
+    let move = monteCarloTreeSearch(gameState, 10000);
+
+    if (move.subBoard > 0) {
+        buttonIndex = move.cell + (9 * move.subBoard);
+    } else {
+        buttonIndex = move.cell;
+    }
+
+    button = document.getElementsByClassName("square")[buttonIndex];
+    buttonRelativeIndex = move.cell;
+    parentElement = document.getElementsByClassName("square-container")[move.subBoard]
+    parentIndex = move.subBoard;
+    grandParentElement = document.getElementsByClassName("game-container")[0];
+
+    handleClick(button, buttonRelativeIndex, parentElement, parentIndex, grandParentElement);
 }
