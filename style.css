@@ -185,10 +185,10 @@ html, body {
 #settings-button {
     font-size: 2vmin;
     color: light-dark(var(--textColor), var(--textColor));
-    background-color: light-dark(var(--lightSquareBorder), var(--squareBorder));
+    background-color: light-dark(var(--squareBorder), var(--squareBorder));
 }
 #settings-button:hover {
-    background-color: light-dark(var(--squareBorder), var(--lightSquareBorder));
+    background-color: light-dark(var(--lightSquareBorder), var(--lightSquareBorder));
 }
 #settings-content {
     display: none;
@@ -352,7 +352,7 @@ html, body {
 }
 
 .new-game-radio-buttons input[type="radio"]:checked + label {
-    background: light-dark(var(--lightSquareBorder), var(--squareBorder));
+    background: light-dark(var(--squareBorder), var(--squareBorder));
     color: light-dark(var(--textColor), var(--textColor));
     font-weight: bold;
 }
@@ -363,7 +363,7 @@ html, body {
 }
 
 #new-game-checkbox {
-    accent-color: light-dark(var(--lightSquareBorder), var(--squareBorder));
+    accent-color: light-dark(var(--squareBorder), var(--squareBorder));
     width: 1.5em;
     height: 1.5em;
 }
@@ -377,10 +377,10 @@ html, body {
     cursor: pointer;
     transition: background-color 0.3s ease;
     color: light-dark(var(--textColor), var(--textColor));
-    background-color: light-dark(var(--lightSquareBorder), var(--squareBorder));
+    background-color: light-dark(var(--squareBorder), var(--squareBorder));
 }
 #start-new-game-button:hover {
-    background-color: light-dark(var(--squareBorder), var(--lightSquareBorder));
+    background-color: light-dark(var(--lightSquareBorder), var(--lightSquareBorder));
 }
 
 #new-game-button {
@@ -426,6 +426,13 @@ html, body {
 #victory-screen-reset:hover {
     background-color: #ff4d4d;
 }
+#victory-screen-new-game {
+        background-color:  #37b337;
+}
+#victory-screen-new-game:hover {
+    background-color: #4cb34c;
+}
+
 
 
 @media (max-width: 600px) {
@@ -448,7 +455,7 @@ html, body {
         font-size: 5vmin;
     }
     #reset-game {
-        font-size: 3vmin;
+        font-size: 4vmin;
         padding: 1.5vmin 3vmin;
     }
     .menu-button {
@@ -456,15 +463,15 @@ html, body {
         padding: 1.5vmin 3vmin;
     }
     #settings-button {
-        font-size: 3vmin;
+        font-size: 4vmin;
         padding: 1.5vmin 3vmin;
     }
     #new-game-button {
-        font-size: 3vmin;
+        font-size: 4vmin;
         padding: 1.5vmin 3vmin;
     }
     #start-new-game-button {
-        font-size: 3vmin;
+        font-size: 4vmin;
         padding: 1.5vmin 3vmin;
     }   
 }

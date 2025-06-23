@@ -404,6 +404,7 @@ function resetGame() {
     }
     document.documentElement.style.setProperty("--hoverColor", palettes[activeColorPallete][gameState.currentPlayer === "X" ? "colorX" : "colorO"]);
     document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
+    document.getElementsByClassName("current-turn")[0].style.color = palettes[activeColorPallete].textColor;
 
     squares.forEach((square) => {
         square.classList.remove("square-disabled");
@@ -455,8 +456,6 @@ function loadGame() {
 
         gameState.computerToMove = false;
         document.documentElement.style.setProperty("--hoverColor", palettes[activeColorPallete][gameState.currentPlayer === "X" ? "colorX" : "colorO"]);
-        
-        
         
         if (gameState.activeSubBoard != null) {
 
@@ -676,7 +675,6 @@ function checkForWinner(grandParentElementChildren) {
             } else {
                 showVictoryScreen("O");
             }
-            document.getElementsByClassName("current-turn")[0].style.color = "background-color";
             gameState.ended = true;
             return;
 
@@ -795,9 +793,8 @@ function startNewGame() {
 function showVictoryScreen(result) {
     if (settingsShown = true) showSettings();
     if (newGameShown = true) showNewGame();
-    document.getElementById("new-game").style.display = "none";
     document.getElementById("reset-game").style.display = "none";
-    document.getElementById("new-game").style.display = "none";
+    document.getElementById("new-game-button").style.display = "none";
     document.getElementById("new-game-content").style.display = "none";
     document.getElementById("settings-button").style.display = "none";
    
