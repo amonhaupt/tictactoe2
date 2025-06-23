@@ -532,7 +532,7 @@ function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, gr
                 makeMCTSMove();
                 gameState.computerToMove = false;
                 gameContainer.style.pointerEvents = "auto";
-            }, Math.random()*300); 
+            }, (Math.random()* (300 - 500) + 500)); 
         }
         
     }
@@ -716,7 +716,7 @@ let menu = document.getElementById("menu-container");
 let menuShown = false;
 
 function showMenu() {
-    menu.style.display = "block";
+    menu.style.display = "flex";
     menuShown = true;
 }
 
@@ -805,7 +805,7 @@ function showVictoryScreen(result) {
 
     document.getElementById("victory-screen").style.display = "grid";
 
-    menu.style.display = "block";
+    menu.style.display = "flex";
     document.getElementsByClassName("menu-item-container")[0].style.width = "50%";
 
     if (result != null) {

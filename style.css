@@ -269,7 +269,9 @@ html, body {
 }
 
 .menu-container {
-    display: none; 
+    display: none;
+    justify-content: center; 
+    align-items: center;  
     position: fixed; 
     z-index: 1; 
     left: 0;
@@ -288,7 +290,7 @@ html, body {
 .menu-item-container {
     text-align: center;
     background-color: light-dark(var(--backgroundColor),var(--backgroundColor));;
-    margin: 15% auto;
+    /* margin: 15% auto; */
     padding: 20px;
     border-radius: 5px;
     border: 0.3vmin solid light-dark(var(--lightSquareBorder), var(--squareBorder));
@@ -427,6 +429,9 @@ html, body {
 
 
 @media (max-width: 600px) {
+    .game-header h1 {
+        font-size: 5vmin;
+    }
     .game-board {
         width: 95vmin;
         height: 95vmin;
@@ -439,6 +444,9 @@ html, body {
         font-size: 4vmin;
         border-width: 0.2vmin;
     }
+    .current-turn {
+        font-size: 5vmin;
+    }
     #reset-game {
         font-size: 3vmin;
         padding: 1.5vmin 3vmin;
@@ -448,6 +456,14 @@ html, body {
         padding: 1.5vmin 3vmin;
     }
     #settings-button {
+        font-size: 3vmin;
+        padding: 1.5vmin 3vmin;
+    }
+    #new-game-button {
+        font-size: 3vmin;
+        padding: 1.5vmin 3vmin;
+    }
+    #start-new-game-button {
         font-size: 3vmin;
         padding: 1.5vmin 3vmin;
     }   
