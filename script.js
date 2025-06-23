@@ -317,6 +317,12 @@ let gameState = {
     ended: false,
 };
 
+let gameSettings = {
+    startingPlayer: "X",
+    playingAgainstComputer: false,
+    computerStarts: false
+}
+
 const winPatterns = [
     [0, 1, 2],
     [0, 3, 6],
@@ -333,12 +339,19 @@ let computerDifficulty = 2;
 let previousButton = document.createElement("button");
 let squares = document.querySelectorAll(".square");
 let squareContainers = document.querySelectorAll(".square-container");
+let gameContainer = document.getElementsByClassName("game-container")[0];
 
 // ON PAGE LOAD //
 
+
 loadThemeButtons();
 loadSettings();
+loadGameSettings();
 loadGame();
+
+window.onload = function() {
+    document.getElementById("new-game-checkbox").checked = false;
+}
 
 // PWA //
 if ("serviceWorker" in navigator) {
@@ -353,7 +366,11 @@ if ("serviceWorker" in navigator) {
 function resetGame() {
 
     document.getElementById("menu-container").style.display = "none";
-    document.getElementsByClassName("game-over")[0].style.display = "none";
+    document.getElementsByClassName("menu-item-container")[0].style.width = "70%";
+
+    hideVictoryScreen()
+    
+    gameSettings.playingAgainstComputer = document.getElementById("new-game-checkbox").checked
 
     gameState = {
         globalBoard: ["", "", "", "", "", "", "", "", ""],
@@ -369,7 +386,7 @@ function resetGame() {
             ["", "", "", "", "", "", "", "", ""]
         ],
         currentPlayer: "X",
-        playingAgainstComputer: false,
+        playingAgainstComputer: gameSettings.playingAgainstComputer,
         computerToMove: false,
         activeSubBoard: null,
         lastMove: {
@@ -379,7 +396,13 @@ function resetGame() {
         },
         ended: false,
     };
-    gameState.currentPlayer = "X";
+    
+    if (gameSettings.startingPlayer === "?") {
+        gameState.currentPlayer = Math.random() < 0.5 ? "X" : "O";
+    } else {
+        gameState.currentPlayer = gameSettings.startingPlayer
+    }
+    document.documentElement.style.setProperty("--hoverColor", palettes[activeColorPallete][gameState.currentPlayer === "X" ? "colorX" : "colorO"]);
     document.getElementsByClassName("current-turn")[0].textContent = gameState.currentPlayer;
 
     squares.forEach((square) => {
@@ -430,6 +453,11 @@ function loadGame() {
             return;
         }
 
+        gameState.computerToMove = false;
+        document.documentElement.style.setProperty("--hoverColor", palettes[activeColorPallete][gameState.currentPlayer === "X" ? "colorX" : "colorO"]);
+        
+        
+        
         if (gameState.activeSubBoard != null) {
 
             if (gameState.globalBoard[gameState.activeSubBoard] === "") {
@@ -462,9 +490,12 @@ function loadGame() {
                 });
             });
 
-            // let lastSquare = document.getElementById(`square-container-${gameState.lastMove.subBoard}`).children[gameState.lastMove.cell];
-            // lastSquare.classList.add(`last-square-${gameState.currentPlayer.toLowerCase()}`);
-            // previousButton = lastSquare;
+            let lastSquare = document.getElementById(`square-container-${gameState.lastMove.subBoard}`).children[gameState.lastMove.cell];
+            lastSquare.classList.add(`last-square-${gameState.currentPlayer === "O" ? "x" : "o"}`);
+            previousButton = lastSquare;
+
+            let currentTurn = document.getElementsByClassName("current-turn")[0];
+            currentTurn.textContent = gameState.currentPlayer === "O" ? "O" : "X";
         }  
     }
 }
@@ -494,16 +525,16 @@ function handleClick(button, buttonRelativeIndex, parentElement, parentIndex, gr
     }
     if (gameState.playingAgainstComputer === true) {
         gameState.computerToMove = (gameState.computerToMove === false) ? true : false;
-
-        // If it's the computer's turn, make the computer move
         if (gameState.computerToMove === true) {
-            // Optionally, you can add a delay for realism
+            gameContainer.style.pointerEvents = "none";
             setTimeout(() => {
-                makeRandomMove(); // or makeMCTSMove();
-                // After the computer moves, switch back to human
+                // makeRandomMove();
+                makeMCTSMove();
                 gameState.computerToMove = false;
-            }, 300); 
+                gameContainer.style.pointerEvents = "auto";
+            }, Math.random()*300); 
         }
+        
     }
 }
 
@@ -641,12 +672,11 @@ function checkForWinner(grandParentElementChildren) {
 
             });
             if (gameState.currentPlayer == "O") {
-                alert("X WON");
+                showVictoryScreen("X");
             } else {
-                alert("O WON");
+                showVictoryScreen("O");
             }
-            document.getElementsByClassName("current-turn")[0].textContent = "";
-            document.getElementsByClassName("game-over")[0].style.display = "block";
+            document.getElementsByClassName("current-turn")[0].style.color = "background-color";
             gameState.ended = true;
             return;
 
@@ -656,20 +686,17 @@ function checkForWinner(grandParentElementChildren) {
 
     if (!isWon) {
         if (gameState.globalBoard.every(cell => cell !== "")) {
-            alert("DRAW");
-            document.getElementsByClassName("current-turn")[0].textContent = "";
-            document.getElementsByClassName("game-over")[0].style.display = "block";
+            showVictoryScreen("D");
+            document.getElementsByClassName("current-turn")[0].style.color = "";
         }
     } else {
         console.log("show new game");
-        document.getElementsByClassName("current-turn")[0].textContent = "";
-        document.getElementsByClassName("game-over")[0].style.display = "block";
+        document.getElementsByClassName("current-turn")[0].style.color = "";
     }
 
 }
 
 /// NEW CHECK WIN ///
-
 function getWin(board) {
     for (const line of winPatterns) {
         const [a, b, c] = line;
@@ -695,16 +722,21 @@ function showMenu() {
 
 function hideMenu(event) {
     if (event.target == menu) {
+        
         menu.style.display = "none";
+        if (settingsShown = true) showSettings();
+        if (newGameShown = true) showNewGame();
         menuShown = false;
     }
-        
-    if (event.target.matches(".button-container") || event.target.matches(".menu-item-container")) {
-        document.getElementById("settings-content").style.display = "none";
-        document.getElementById("new-game").style.display = "block";
-        document.getElementById("reset-game").style.display = "block";
-        document.getElementById("settings-button").textContent = "SETTINGS";
-        settingsShown = false;
+    if (!newGameShown) {    
+        if (event.target.matches(".button-container") || event.target.matches(".menu-item-container")) {
+            document.getElementById("settings-content").style.display = "none";
+            document.getElementById("new-game-content").style.display = "none";
+            document.getElementById("new-game-button").style.display = "block";
+            document.getElementById("reset-game").style.display = "block";
+            document.getElementById("settings-button").textContent = "SETTINGS";
+            settingsShown = false;
+        }
     }
     
 }
@@ -713,6 +745,85 @@ window.onclick = function(event) {
     if (menuShown) {
         hideMenu(event);
     }
+}
+
+let newGameShown = false;
+function showNewGame() {
+    hideVictoryScreen();
+    if (newGameShown == false) {
+        document.getElementById("new-game-content").style.display = "flex";
+        document.getElementById("new-game-button").style.display = "none";
+        document.getElementById("reset-game").style.display = "none";
+        document.getElementById("settings-button").style.display = "none";
+        newGameShown = true;
+    } else {
+        document.getElementById("new-game-content").style.display = "none";
+        document.getElementById("new-game-button").style.display = "block";
+        document.getElementById("reset-game").style.display = "block";
+        document.getElementById("settings-button").style.display = "block";
+        newGameShown = false;
+    }
+}
+
+function changeGameSettings(setting) {
+    if (setting === true) {
+        gameSettings.playingAgainstComputer = true;
+    } else {
+        gameSettings.playingAgainstComputer = false;
+        if (setting != false) {
+            if (setting === "?") {
+                gameSettings.startingPlayer = setting;
+            } else {
+                gameSettings.startingPlayer = setting;
+            }
+        }
+    }
+    localStorage.setItem("gameSettings", JSON.stringify(gameSettings));
+}
+
+function loadGameSettings() {
+    if (localStorage.getItem("gameSettings")) {
+        gameSettings = JSON.parse(localStorage.getItem("gameSettings"));
+    }
+}
+
+function startNewGame() {
+    showNewGame();
+    resetGame();
+}
+
+function showVictoryScreen(result) {
+    if (settingsShown = true) showSettings();
+    if (newGameShown = true) showNewGame();
+    document.getElementById("new-game").style.display = "none";
+    document.getElementById("reset-game").style.display = "none";
+    document.getElementById("new-game").style.display = "none";
+    document.getElementById("new-game-content").style.display = "none";
+    document.getElementById("settings-button").style.display = "none";
+   
+    document.getElementsByClassName("current-turn")[0].style.color = palettes[activeColorPallete].backgroundColor;
+
+    document.getElementById("victory-screen").style.display = "grid";
+
+    menu.style.display = "block";
+    document.getElementsByClassName("menu-item-container")[0].style.width = "50%";
+
+    if (result != null) {
+        if (result != "D") {
+            document.getElementById("victory-label").textContent = `${result} WON!`;
+        } else {
+            document.getElementById("victory-label").textContent = "DRAW";
+        }
+    }
+}
+
+function hideVictoryScreen() {
+    document.getElementById("victory-screen").style.display = "none";
+
+    document.getElementById("new-game-button").style.display = "block";
+    document.getElementById("reset-game").style.display = "block";
+    document.getElementById("new-game-content").style.display = "none";
+    document.getElementById("settings-button").style.display = "block";
 }
 
 function loadSettings() {
@@ -733,7 +844,7 @@ function loadSettings() {
             document.getElementById(`theme-radio-${savedTheme}`).checked = true;
             loadTheme(activeColorPallete);
         }  
-        });
+    });
     } else {
         activeColorPallete = "standardPallete";
         loadTheme(activeColorPallete);
@@ -745,19 +856,18 @@ let settingsShown = false;
 function showSettings() {
     if (settingsShown == false) {
         document.getElementById("settings-content").style.display = "block";
-        document.getElementById("new-game").style.display = "none";
+        document.getElementById("new-game-button").style.display = "none";
         document.getElementById("reset-game").style.display = "none";
         document.getElementById("settings-button").textContent = "CLOSE SETTINGS";
         settingsShown = true;
     } else {
         document.getElementById("settings-content").style.display = "none";
-        document.getElementById("new-game").style.display = "block";
+        document.getElementById("new-game-button").style.display = "block";
         document.getElementById("reset-game").style.display = "block";
         document.getElementById("settings-button").textContent = "SETTINGS";
         settingsShown = false;
     }
 }
-
 
 function toggleContrast() {
     const toggle = document.getElementById("contrast-toggle");
@@ -887,6 +997,14 @@ function checkWin(board) {
     return null;
 }
 
+function isGameOver(state) {
+    return checkWin(state.globalBoard) != null
+}
+
+function deepCopy(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
+
 // GET VALID MOVES END //
 
 // NODE //
@@ -899,10 +1017,11 @@ class Node {
         this.wins = 0; // Number of wins from this node
         this.draws = 0;
         this.move = move; // The move that led to this state
+        this.untriedMoves = getValidMoves(state);
     }
 
     isFullyExpanded() {
-        return this.children.length === getValidMoves(this.state).length;
+        return this.untriedMoves.length === 0;
     }
 }
 
@@ -922,25 +1041,19 @@ function select(node) {
 
 // EXPAND //
 function expand(node) {
+    if (node.isFullyExpanded()) return node;
 
-    if (node.isFullyExpanded()) {
-        return null; // No expansion needed if all moves are already explored
-    }
-    const validMoves = getValidMoves(node.state);
-    const triedMoves = node.children.map(child => child.move);
-    for (const move of validMoves) {
-        if (!triedMoves.some(m => m.subBoard === move.subBoard && m.cell === move.cell)) {
-            const newState = applyMove(node.state, move);
-            const childNode = new Node(newState, node, move);
-            node.children.push(childNode);
-            return childNode;
-        }
-    }
+    const idx = Math.floor(Math.random() * node.untriedMoves.length);
+    const move = node.untriedMoves.splice(idx, 1)[0];
+    const newState = applyMove(node.state, move)
+    const childNode = new Node(newState, node, move);
+    node.children.push(childNode);
+    return childNode;
 }
 
 // SIMULATE //
 function simulate(state) {
-    let currentState = state;
+    let currentState = deepCopy(state);
     while (!isGameOver(currentState)) {
         const moves = getValidMoves(currentState);
         const randomMove = moves[Math.floor(Math.random() * moves.length)];
@@ -949,12 +1062,8 @@ function simulate(state) {
     return checkWin(currentState.globalBoard); // Returns "X", "O", "D" or null for still going.
 }
 
-function isGameOver(state) {
-    return checkWin(state.globalBoard) != null
-}
-
 function applyMove(state, move) {
-    let newState = JSON.parse(JSON.stringify(state));
+    let newState = deepCopy(state);
     newState.activeSubBoard = move.subBoard;
     newState.subBoards[move.subBoard][move.cell] = state.currentPlayer;
     let winState = checkWin(newState.subBoards[move.subBoard]);
@@ -965,14 +1074,12 @@ function applyMove(state, move) {
     return newState;
 }
 
-
-
 // BACK PROGAGATE //
 function backpropagate(node, result, lookingFor) {
 
     while (node !== null) {
         node.visits++;
-        if (lookingFor === result) {
+        if (result === lookingFor) {
             node.wins++;
         }
         node = node.parent;
@@ -982,10 +1089,8 @@ function backpropagate(node, result, lookingFor) {
 // MCTS //
 function monteCarloTreeSearch(rootState, iterations) {
 
-    const searchState = JSON.parse(JSON.stringify(rootState));
-
+    const searchState = deepCopy(rootState);
     const lookingFor = searchState.currentPlayer;
-
     const rootNode = new Node(searchState);
 
     for (let i = 0; i < iterations; i++) {
@@ -996,6 +1101,11 @@ function monteCarloTreeSearch(rootState, iterations) {
         const result = simulate(node.state); // Simulation
         backpropagate(node, result, lookingFor); // Backpropagation
     }
+
+    if (rootNode.children.length === 0) {
+        return null;
+    }
+
     console.log("FINAL STATE: ", rootNode, " looked for: ", lookingFor);
     return rootNode.children.reduce((bestChild, child) => 
         child.visits > bestChild.visits ? child : bestChild).move;

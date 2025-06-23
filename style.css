@@ -65,11 +65,9 @@ html, body {
     /* height: calc(100vmin - 4vmin);  */
     aspect-ratio: 1 / 1;
 }
-
 .wait-for-move {
     pointer-events: none;
 }
-
 .square-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -78,7 +76,6 @@ html, body {
     height: 100%;
     /* aspect-ratio: 1 / 1; */
 }
-
 .square-container-complete-o {
     height: 80%;
     width: 80%;
@@ -94,7 +91,6 @@ html, body {
 .square-container-complete-o > Button {
     visibility: hidden;
 }
-
 .square-container-complete-x {
     background: var(--colorX);
     height: 100%;
@@ -115,7 +111,6 @@ html, body {
     width: 100%;
     transform: rotate(90deg);
 }
-
 .square-container-complete-d {
     position: relative;
 }
@@ -133,7 +128,6 @@ html, body {
     top: 20%;
     transform: rotate(90deg);
 }
-
 .disabled > .square {
     /* opacity: 0.6; */
     border: 0.3vmin solid light-dark(var(--disabledSquareBorder), var(--disabledSquareBorder));
@@ -145,7 +139,6 @@ html, body {
 .disabled > .last-square-o {
     border: 0.3vmin solid var(--colorO) !important;
 }
-
 .square {
     width: 100%;
     height: 100%;
@@ -162,7 +155,6 @@ html, body {
     min-height: 8vmin; 
 }
 .square:hover {
-    /* background-color: #948979; */
     border: 0.3vmin solid var(--hoverColor);
 }
 .square-disabled {
@@ -175,7 +167,6 @@ html, body {
 .square-disabled.last-square-o {
     border: 0.3vmin solid var(--colorO) !important;
 }
-
 .button-container {
     text-align: center;
     display: grid;
@@ -195,8 +186,6 @@ html, body {
     font-size: 2vmin;
     color: light-dark(var(--textColor), var(--textColor));
     background-color: light-dark(var(--lightSquareBorder), var(--squareBorder));
-    /* color: #ffffff; */
-
 }
 #settings-button:hover {
     background-color: light-dark(var(--squareBorder), var(--lightSquareBorder));
@@ -233,19 +222,22 @@ html, body {
 }
 
 .theme-radio-list {
-    max-height: 180px;      /* Adjust as needed */
+    max-height: 180px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 8px;
     margin-top: 8px;
-  }
-  .theme-radio-label {
+}
+.theme-radio-label {
     display: flex;
     align-items: center;
     gap: 8px;
     cursor: pointer;
-  }
+}
+.theme-radio-label > input {
+    cursor: pointer;
+}
   
   
 
@@ -287,39 +279,152 @@ html, body {
     overflow: none; 
     background-color: rgb(0,0,0); 
     background-color: rgba(0,0,0,0.4); 
-  }
+}
 
-  .menu-container > .game-over {
+.menu-container > .game-over {
     display: none;
+}
 
-  }
-  
-  /* Modal Content/Box */
-  .menu-item-container {
+.menu-item-container {
     text-align: center;
     background-color: light-dark(var(--backgroundColor),var(--backgroundColor));;
-    margin: 15% auto; /* 15% from the top and centered */
+    margin: 15% auto;
     padding: 20px;
     border-radius: 5px;
     border: 0.3vmin solid light-dark(var(--lightSquareBorder), var(--squareBorder));
-    width: 80%; /* Could be more or less, depending on screen size */
-  }
-  
-  /* The Close Button */
-  .close-menu {
+    width: 70%;
+}
+
+.close-menu {
     color: #aaa;
     top: 10%;
     float: right;
     font-size: 28px;
     font-weight: bold;
-  }
-  
-  .close-menu:hover,
-  .close-menu:focus {
+}
+
+.close-menu:hover,
+.close-menu:focus {
     color: black;
     text-decoration: none;
     cursor: pointer;
-  }
+}
+
+#new-game-content {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+}
+
+.new-game-selection-text {
+    margin-bottom: 1vmin;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.new-game-radio-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 2em;
+    align-items: center;
+}
+
+.new-game-radio-buttons input[type="radio"] {
+    display: none;
+}
+
+.new-game-radio-buttons label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 50%;
+    background: var(--backgroundColor);
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s, border 0.2s;
+    border: 2px solid var(--squareBorder);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    user-select: none;
+}
+
+.new-game-radio-buttons input[type="radio"]:checked + label {
+    background: light-dark(var(--lightSquareBorder), var(--squareBorder));
+    color: light-dark(var(--textColor), var(--textColor));
+    font-weight: bold;
+}
+
+.new-game-radio-buttons label span {
+    display: block;
+    line-height: 1;
+}
+
+#new-game-checkbox {
+    accent-color: light-dark(var(--lightSquareBorder), var(--squareBorder));
+    width: 1.5em;
+    height: 1.5em;
+}
+
+#start-new-game-button {
+    margin-top: 2vmin;
+    font-size: 2vmin;
+    padding: 1vmin 2vmin;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    color: light-dark(var(--textColor), var(--textColor));
+    background-color: light-dark(var(--lightSquareBorder), var(--squareBorder));
+}
+#start-new-game-button:hover {
+    background-color: light-dark(var(--squareBorder), var(--lightSquareBorder));
+}
+
+#new-game-button {
+    font-size: 2vmin;
+    padding: 1vmin 2vmin;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    color: light-dark(var(--textColor), var(--textColor));
+    background-color:  #37b337;
+}
+#new-game-button:hover {
+    background-color: #4cb34c;
+}
+
+#victory-screen {
+    display: none;
+    text-align: center;
+    grid-template-columns: 1fr;
+    row-gap: 2vmin;
+    margin: 5vmin;    
+}
+#victory-label {
+    font-size: 5vmin;
+    margin-bottom: 5vmin;
+}
+#victory-screen > button {
+    color: var(--textColor);
+    font-size: 3vmin;
+    padding: 1vmin 2vmin;
+    margin-top: 1vmin;
+    height: 8vmin;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+#victory-screen-reset {
+    background-color: #ff6666;
+    
+}
+#victory-screen-reset:hover {
+    background-color: #ff4d4d;
+}
+
 
 @media (max-width: 600px) {
     .game-board {

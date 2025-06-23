@@ -117,7 +117,7 @@
             </div>
         </div>
         <div class="current-turn">O</div>
-        <button class="game-over" id="new-game-gameover" onclick="resetGame()">NEW GAME</button>
+        <!-- <button class="game-over" id="new-game-gameover" onclick="resetGame()">NEW GAME</button> -->
         <button id="menu-button" class="menu-button" onclick="showMenu()">MENU</button>
         <div id="menu-container" class="menu-container">
             <div class="menu-item-container">
@@ -135,7 +135,26 @@
                         </div>
                     </div>
                     <!-- <p class="game-over" id="game-over">game-over</p> -->
-                    <button id="new-game" onclick="resetGame()">NEW GAME</button>
+                    <button id="new-game-button" onclick="showNewGame()">NEW GAME</button>
+                    <div id="new-game-content">
+                        <h2 class="new-game-selection-text">Who Begins?</h2>
+                        <form class="new-game-radio-buttons">
+                            <input type="radio" id="x" name="choice" value="X" onclick="changeGameSettings(value)">
+                            <label for="x"><span>X</span></label>
+                            <input type="radio" id="o" name="choice" value="O" onclick="changeGameSettings(value)">
+                            <label for="o"><span>O</span></label>
+                            <input type="radio" id="q" name="choice" value="?" onclick="changeGameSettings(value)">
+                            <label for="q"><span>?</span></label>
+                        </form>
+                        <h2 class="new-game-selection-text">Play Against Computer?</h2>
+                        <input type="checkbox" id="new-game-checkbox" onclick="changeGameSettings(this.checked, 'P')"/>
+                        <button id="start-new-game-button" onclick="startNewGame()">START</button>
+                    </div>
+                    <div id="victory-screen">
+                        <label id="victory-label">Blank WON!</label>
+                        <button id="victory-screen-reset" onclick="resetGame()">RESTART</button>
+                        <button id="victory-screen-new-game" onclick="showNewGame()">NEW GAME</button>
+                    </div>
                     <button id="reset-game" onclick="resetGame()">RESET GAME</button>
                 </div> 
             </div>   
